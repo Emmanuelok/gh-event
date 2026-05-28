@@ -28,6 +28,27 @@ https://emmanuelok.github.io/gh-event/
 > just note the token in this environment cannot auto-enable Pages, so the one-time switch above
 > is required either way.
 
+## Deploy to Vercel (recommended for live + continuous updates)
+
+Vercel builds and serves from **its own servers** by pulling this GitHub repo, so it deploys
+automatically on every push — and the repo is pre-configured (`vercel.json`, zero build step).
+
+One-time setup (~1 minute):
+
+1. Go to **[vercel.com/new](https://vercel.com/new)** and sign in with GitHub.
+2. **Import** the `Emmanuelok/gh-event` repository.
+3. Framework preset: **Other** · Build command: *(leave empty)* · Output directory: *(leave empty / `.`)*.
+4. Pick the branch **`claude/adoring-mccarthy-RBmgV`** (Settings → Git → Production Branch) and **Deploy**.
+
+You get a live `https://<project>.vercel.app` URL, and **every push to the branch auto-redeploys**.
+Netlify ([app.netlify.com/start](https://app.netlify.com/start)) and Cloudflare Pages work the same
+way — import the repo, no build command, publish directory `.`.
+
+> Why not a one-command CLI deploy from here? This development environment uses a network
+> **allowlist** (a Claude Code on the web security feature) that blocks `api.vercel.com`,
+> `api.netlify.com`, etc. (`x-deny-reason: host_not_allowed`). The git-integration above sidesteps
+> that entirely because the deploy runs on the host's infrastructure, not in this sandbox.
+
 ## What's inside the site
 
 | Section | Covers |
