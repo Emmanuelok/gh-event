@@ -1,0 +1,12 @@
+{
+  "name": "durbar",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Durbar — event invitations, RSVPs and MoMo contributions for Ghana.",
+  "engines": { "node": ">=22.5.0" },
+  "scripts": {
+    "start": "node --no-warnings server/index.js",
+    "dev": "node --no-warnings --watch server/index.js"
+  }
+}

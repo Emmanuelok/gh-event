@@ -1,0 +1,15 @@
+# dependencies (none yet — core is zero-dependency)
+node_modules/
+
+# local database & runtime data
+.data/
+*.db
+*.db-journal
+*.db-wal
+
+# env / secrets
+.env
+.env.local
+
+# os noise
+.DS_Store

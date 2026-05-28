@@ -71,11 +71,13 @@
     return s;
   }
   let saveT;
+  let remoteRsvps = [], remoteContribs = []; // responses captured via the shared link (display-only)
   function save(flash) {
     try { localStorage.setItem(KEY, JSON.stringify(state)); }
     catch (e) { toast('⚠️ Browser storage full — remove a photo'); return; }
     const s = $('#saveState'); if (s) { s.textContent = 'All changes saved'; s.classList.add('saved'); }
     if (flash) toast('Saved ✓');
+    if (window.__studio && window.__studio.onSave) { try { window.__studio.onSave(state); } catch (e) {} }
     clearTimeout(saveT);
   }
   function touched() { const s = $('#saveState'); if (s) { s.textContent = 'Saving…'; s.classList.remove('saved'); } clearTimeout(saveT); saveT = setTimeout(save, 500); }
@@ -217,8 +219,13 @@
   /* ============================================================
      GUESTS
      ============================================================ */
+  // Link-captured responses are merged in for display only (kept out of saved state)
+  function mapRsvp(r) { return { id: 'r' + r.id, name: r.name, phone: r.phone || '', group: 'via link', status: r.status, party: +r.party || 0, note: r.note || '', _remote: true }; }
+  function mapContrib(c) { return { id: 'c' + c.id, name: c.name, sub: 'via link · ' + (c.method || 'momo'), pledge: +c.amount || 0, paid: +c.amount || 0, _remote: true }; }
+  function allGuests() { return state.guests.concat(remoteRsvps.map(mapRsvp)); }
+  function allContribs() { return state.contributors.concat(remoteContribs.map(mapContrib)); }
   function renderGuests() {
-    const list = state.guests;
+    const list = allGuests();
     const gc = $('#gCount'); if (gc) gc.textContent = list.length;
     const heads = list.reduce((a, x) => a + (x.status === 'yes' ? (+x.party || 1) : 0), 0);
     const by = (s) => list.filter((x) => x.status === s).length;
@@ -229,7 +236,7 @@
       <td><span class="tag grp">${esc(x.group)}</span></td>
       <td><span class="tag ${x.status}">${x.status}</span></td>
       <td>${esc(x.party)}</td><td class="dim">${esc(x.note || '')}</td>
-      <td style="text-align:right"><button class="x-btn" data-delg="${x.id}">✕</button></td></tr>`).join('')
+      <td style="text-align:right">${x._remote ? '<span class="dim small" title="Responded via your shared link">link</span>' : `<button class="x-btn" data-delg="${x.id}">✕</button>`}</td></tr>`).join('')
       : `<tr><td colspan="6"><div class="empty">No guests yet — add your first above, or share the page and let them RSVP.</div></td></tr>`;
     $('#gGroup').innerHTML = GROUPS.map((x) => `<option>${x}</option>`).join('');
     $('#gStatus').innerHTML = STATUSES.map((x) => `<option value="${x}">${x}</option>`).join('');
@@ -245,8 +252,9 @@
      MONEY
      ============================================================ */
   function totals() {
-    const pledged = state.contributors.reduce((a, c) => a + (+c.pledge || 0), 0);
-    const collected = state.contributors.reduce((a, c) => a + (+c.paid || 0), 0);
+    const cs = allContribs();
+    const pledged = cs.reduce((a, c) => a + (+c.pledge || 0), 0);
+    const collected = cs.reduce((a, c) => a + (+c.paid || 0), 0);
     const vTotal = state.vendors.reduce((a, v) => a + (+v.total || 0), 0);
     const vPaid = state.vendors.reduce((a, v) => a + (+v.paid || 0), 0);
     return { pledged, collected, toCollect: Math.max(0, pledged - collected), vTotal, vPaid, vDue: vTotal - vPaid, cash: collected - vPaid, projected: pledged - vTotal };
@@ -255,13 +263,15 @@
     const t = totals();
     $('#mKpis').innerHTML = kpi('Pledged', ghs(t.pledged)) + kpi('Collected', ghs(t.collected), '', 'good') +
       kpi('To collect', ghs(t.toCollect), '', 'warn') + kpi('Owed to vendors', ghs(t.vDue), '', 'bad');
-    $('#cBody').innerHTML = state.contributors.map((c) => {
+    $('#cBody').innerHTML = allContribs().map((c) => {
       const st = c.paid >= c.pledge ? 'yes' : (c.paid > 0 ? 'maybe' : 'pending');
       const lbl = c.paid >= c.pledge ? 'paid' : (c.paid > 0 ? 'part' : 'pledged');
+      const act = c._remote ? '<span class="dim small" title="Sent via your shared link">link</span>'
+        : `${c.paid < c.pledge ? `<button class="btn btn-sm" data-payc="${c.id}">Mark paid</button> ` : ''}<button class="x-btn" data-delc="${c.id}">✕</button>`;
       return `<tr><td><b>${esc(c.name)}</b><br><span class="dim">${esc(c.sub)}</span></td>
         <td>${ghs(c.paid)} <span class="dim">/ ${ghs(c.pledge)}</span></td>
         <td><span class="tag ${st}">${lbl}</span></td>
-        <td style="text-align:right">${c.paid < c.pledge ? `<button class="btn btn-sm" data-payc="${c.id}">Mark paid</button> ` : ''}<button class="x-btn" data-delc="${c.id}">✕</button></td></tr>`;
+        <td style="text-align:right">${act}</td></tr>`;
     }).join('');
     $('#vBody').innerHTML = state.vendors.map((v) => {
       const bal = (+v.total || 0) - (+v.paid || 0);
@@ -291,16 +301,17 @@
      ============================================================ */
   function renderDash() {
     const e = state.event, t = totals();
-    const heads = state.guests.reduce((a, x) => a + (x.status === 'yes' ? (+x.party || 1) : 0), 0);
-    const yes = state.guests.filter((x) => x.status === 'yes').length;
-    const pending = state.guests.filter((x) => x.status === 'pending' || x.status === 'maybe').length;
+    const gs = allGuests();
+    const heads = gs.reduce((a, x) => a + (x.status === 'yes' ? (+x.party || 1) : 0), 0);
+    const yes = gs.filter((x) => x.status === 'yes').length;
+    const pending = gs.filter((x) => x.status === 'pending' || x.status === 'maybe').length;
     $('#dashHero').innerHTML = `<h2>${esc(e.title || 'Your event')}</h2>
       <div class="meta">${esc(TEMPLATES[e.template].ribbon)} · ${niceDate(e.date)} · ${esc(e.venue)}, ${esc(e.city)}</div>
       <span class="cd">⏳ ${countdown(e.date)}</span>`;
     $('#dKpis').innerHTML = kpi('RSVP yes', yes, heads + ' heads', 'good') + kpi('Collected', ghs(t.collected), 'of ' + ghs(t.pledged) + ' pledged') +
       kpi('Vendor balance', ghs(t.vDue), state.vendors.length + ' vendors', 'bad') + kpi('To chase', pending, 'maybe / pending', 'warn');
     aiInto('#dashAI', t, false);
-    $('#dGuests').innerHTML = `<table class="tbl"><thead><tr><th>Guest</th><th>RSVP</th><th style="text-align:right">Party</th></tr></thead><tbody>${state.guests.slice(0, 6).map((x) => `<tr><td><b>${esc(x.name)}</b></td><td><span class="tag ${x.status}">${x.status}</span></td><td style="text-align:right">${esc(x.party)}</td></tr>`).join('') || '<tr><td>No guests</td></tr>'}</tbody></table>`;
+    $('#dGuests').innerHTML = `<table class="tbl"><thead><tr><th>Guest</th><th>RSVP</th><th style="text-align:right">Party</th></tr></thead><tbody>${gs.slice(0, 6).map((x) => `<tr><td><b>${esc(x.name)}</b></td><td><span class="tag ${x.status}">${x.status}</span></td><td style="text-align:right">${esc(x.party)}</td></tr>`).join('') || '<tr><td>No guests</td></tr>'}</tbody></table>`;
     $('#dMoney').innerHTML = `<table class="tbl"><tbody>
       <tr><td>Pledged</td><td class="r"><b>${ghs(t.pledged)}</b></td></tr>
       <tr><td>Collected</td><td class="r" style="color:#0b6e4f"><b>${ghs(t.collected)}</b></td></tr>
@@ -356,6 +367,20 @@
 
     $('#btnSave').addEventListener('click', () => save(true));
     $('#btnReset').addEventListener('click', () => { if (confirm('Reset the studio to the sample event? Your changes will be cleared.')) { state = seed(); save(); buildEditor(); renderPreview(); switchTab('design'); toast('Reset to sample'); } });
+
+    window.__studio = {
+      get: () => state,
+      load: (s) => { state = migrate(s); buildEditor(); renderPreview(); switchTab('design'); },
+      setRemote: (rsvps, contribs) => {
+        remoteRsvps = rsvps || []; remoteContribs = contribs || [];
+        const gc2 = $('#gCount'); if (gc2) gc2.textContent = allGuests().length;
+        renderDash();
+        const active = $('.nav-i.active');
+        if (active && active.dataset.tab === 'guests') renderGuests();
+        if (active && active.dataset.tab === 'money') renderMoney();
+      },
+      onSave: null,
+    };
 
     const gc = $('#gCount'); if (gc) gc.textContent = state.guests.length;
     renderPreview();

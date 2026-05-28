@@ -17,10 +17,13 @@
   <div class="sbrand"><span class="mk">D</span><span>Durbar<small>studio</small></span></div>
   <div class="ev-pick">📅 <select aria-label="Event"><option>Ama &amp; Kwame · White Wedding</option></select></div>
   <div class="right">
+    <span class="cloud-chip" id="cloudChip" title="Sign in to sync &amp; share a live link">● Local only</span>
     <span class="save-state saved" id="saveState">All changes saved</span>
-    <button class="btn btn-sm" id="btnReset">Reset demo</button>
-    <button class="btn btn-pri btn-sm" id="btnSave">Save</button>
-    <a class="link-back" href="index.html">← Strategy &amp; vision</a>
+    <button class="btn btn-sm" id="btnReset">Reset</button>
+    <button class="btn btn-sm" id="btnSave">Save</button>
+    <button class="btn btn-gold btn-sm" id="btnPublish">🔗 Publish</button>
+    <button class="btn btn-pri btn-sm" id="btnAccount">Sign in</button>
+    <a class="link-back" href="index.html">← Vision</a>
   </div>
 </header>
 
@@ -212,7 +215,18 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- account / publish / share modal -->
+<div class="modal" id="authModal">
+  <div class="sheet">
+    <button class="sheet-x" id="authClose" aria-label="Close">✕</button>
+    <div id="authBody"></div>
+  </div>
+</div>
+
 <script src="shared-event.js"></script>
+<script src="api.js"></script>
 <script src="studio.js"></script>
+<script src="cloud.js"></script>
 </body>
 </html>

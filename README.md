@@ -16,6 +16,35 @@ switching, a functional **guest manager**, and the **contribution & committee le
 AI gap-alerts — all persisted in the browser via `localStorage`. Open `index.html` and click
 **“🎨 Open Studio”**, or go straight to `studio.html`.
 
+## ⚙️ The backend (real MVP)
+
+Beyond the browser-only prototype, Durbar now has a **real backend** (`server/`) so events live in a
+database — not just `localStorage`. It's built with **zero external dependencies** on Node's built-in
+`http`, `crypto` and `node:sqlite` (Node ≥ 22.5), so it runs and deploys anywhere with no install step.
+
+What works end-to-end today:
+
+- **Accounts** — email + password (scrypt-hashed), HMAC-signed session cookies.
+- **Cloud events** — your studio design saves to the database and syncs across devices; hit
+  **🔗 Publish** to mint a real shareable link.
+- **Public guest page** — `event.html?e=<slug>` loads the event straight from the server (no login,
+  no app), and **RSVPs + MoMo contributions are captured server-side** and flow back into the
+  owner's **Guests**, **Money** and **Dashboard**.
+
+```bash
+npm start          # serves the whole app + API on http://localhost:3000
+# config via env: PORT · DURBAR_DB (sqlite path) · DURBAR_SECRET (session signing key)
+```
+
+API surface: `POST /api/auth/{signup,login,logout}` · `GET /api/auth/me` ·
+`GET|POST /api/events` · `GET|PUT /api/events/:id` ·
+`GET /api/public/:slug` · `POST /api/public/:slug/{rsvp,contribute}`.
+
+> **Hosting note:** the static strategy site still deploys to Pages/Vercel, but the **API server**
+> needs a Node host with a persistent disk for the SQLite file (Render, Railway, Fly.io) — or swap
+> `server/db.js` to a managed Postgres. Real MoMo (Paystack/Hubtel) plugs into the `/contribute`
+> flow once you add provider keys.
+
 ## View it online (one-time, ~20 seconds)
 
 The site is a static site served straight from this branch. GitHub Pages just needs to be
@@ -72,7 +101,13 @@ All 20 requested deliverables are mapped across these sections.
 
 ## Run locally
 
-It's a dependency-free static site (intentionally low-data). Any static server works:
+**Full app + API** (accounts, cloud events, shareable RSVP links) — Node ≥ 22.5, zero dependencies:
+
+```bash
+npm start          # then open http://localhost:3000
+```
+
+**Static strategy site only** (no backend) — any static server works:
 
 ```bash
 python3 -m http.server 8000   # then open http://localhost:8000

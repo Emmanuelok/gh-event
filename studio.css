@@ -226,3 +226,27 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 .ev-maplink{color:var(--t-primary);font-weight:700;font-size:13px;display:inline-block;margin-top:5px}
 .ev-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .ev-thumb{padding-top:74%;background-size:cover;background-position:center;border-radius:8px}
+
+/* ---- cloud: account/publish modal + sync chip ---- */
+.cloud-chip{font-size:11.5px;font-weight:700;color:var(--muted);background:var(--bg);border:1px solid var(--line);padding:4px 10px;border-radius:999px;white-space:nowrap}
+.cloud-chip.on{color:var(--green-d);border-color:rgba(11,110,79,.3);background:rgba(11,110,79,.07)}
+.cloud-chip.sync{color:#c8851f;border-color:rgba(200,133,31,.35);background:rgba(200,133,31,.08)}
+.modal{position:fixed;inset:0;background:rgba(18,24,21,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:80}
+.modal.open{display:flex}
+.sheet{background:#fff;border-radius:18px;max-width:430px;width:100%;padding:26px;box-shadow:var(--shadow-lg);position:relative;max-height:90vh;overflow:auto;animation:pop .2s ease}
+@keyframes pop{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.sheet-x{position:absolute;top:14px;right:14px;border:0;background:var(--bg);width:30px;height:30px;border-radius:50%;font-weight:800;cursor:pointer;color:var(--ink-2)}
+.sheet h3{font-size:21px;margin-bottom:5px}
+.sheet .lead{color:var(--muted);font-size:13.5px;margin-bottom:16px}
+.sheet label{display:block;font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:12px 0 5px}
+.sheet input{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-size:15px;font-family:inherit}
+.sheet input:focus{outline:0;border-color:var(--green);box-shadow:0 0 0 3px rgba(11,110,79,.12)}
+.sheet .go{width:100%;margin-top:18px;padding:13px;border:0;border-radius:11px;background:var(--green);color:#fff;font-weight:800;font-size:15px;cursor:pointer}
+.sheet .err{color:var(--clay);font-size:13px;margin-top:10px;display:none}
+.sheet .err.show{display:block}
+.sheet .alt{margin-top:14px;font-size:13px;color:var(--muted);text-align:center}
+.sheet .alt a{color:var(--green-d);font-weight:700;cursor:pointer}
+.share-link{display:flex;gap:8px}
+.share-link input{font-size:13px}
+.copied{color:var(--green-d);font-weight:700;font-size:12.5px;margin-top:8px;display:none}
+.copied.show{display:block}
