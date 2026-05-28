@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Durbar Studio — design your event live</title>
+<meta name="description" content="The live event design studio: build your Ghana event page, manage guests and money, all in one place." />
+<meta name="theme-color" content="#0b6e4f" />
+<link rel="stylesheet" href="studio.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b6e4f'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23f4b400' font-family='Georgia,serif'%3ED%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+<div class="kente-bar"></div>
+
+<!-- top bar -->
+<header class="sbar">
+  <div class="sbrand"><span class="mk">D</span><span>Durbar<small>studio</small></span></div>
+  <div class="ev-pick">📅 <select aria-label="Event"><option>Ama &amp; Kwame · White Wedding</option></select></div>
+  <div class="right">
+    <span class="save-state saved" id="saveState">All changes saved</span>
+    <button class="btn btn-sm" id="btnReset">Reset demo</button>
+    <button class="btn btn-pri btn-sm" id="btnSave">Save</button>
+    <a class="link-back" href="index.html">← Strategy &amp; vision</a>
+  </div>
+</header>
+
+<div class="shell">
+  <!-- sidebar -->
+  <nav class="side">
+    <div class="grp">Workspace</div>
+    <button class="nav-i" data-tab="dashboard"><span class="ic">📊</span><span class="tx">Dashboard</span></button>
+    <button class="nav-i active" data-tab="design"><span class="ic">🎨</span><span class="tx">Design event</span></button>
+    <button class="nav-i" data-tab="guests"><span class="ic">👥</span><span class="tx">Guests</span><span class="ct" id="gCount"></span></button>
+    <button class="nav-i" data-tab="money"><span class="ic">💛</span><span class="tx">Money</span></button>
+    <div class="grp">Soon</div>
+    <button class="nav-i" data-tab="design" title="Reuses the engine"><span class="ic">🎟️</span><span class="tx">Tickets</span></button>
+    <button class="nav-i" data-tab="design"><span class="ic">🔔</span><span class="tx">Reminders</span></button>
+    <div class="side-foot">Everything you change saves to this browser automatically. Connect a host to share it live.</div>
+  </nav>
+
+  <div class="work">
+
+    <!-- ============ DESIGN (live designer) ============ -->
+    <section class="tab active" data-tab="design">
+      <div class="designer">
+        <!-- editor -->
+        <div class="editor">
+          <h2>🎨 Design your event</h2>
+          <p class="sub">Edit on the left — your event page updates live on the right. This is your shareable, low-data, WhatsApp-friendly page.</p>
+
+          <div class="ed-sec open">
+            <div class="ed-head"><span class="ic">🧩</span> Template &amp; theme <span class="chev">▾</span></div>
+            <div class="ed-body">
+              <div class="fld"><label>Choose a template</label><div class="tpl-grid" id="tplGrid"></div></div>
+              <div class="fld"><label>Theme colour</label><div class="sw-grid" id="swGrid"></div></div>
+            </div>
+          </div>
+
+          <div class="ed-sec open">
+            <div class="ed-head"><span class="ic">✏️</span> The basics <span class="chev">▾</span></div>
+            <div class="ed-body">
+              <div class="fld"><label>Event title</label><input type="text" id="fTitle" data-bind="title" placeholder="Ama &amp; Kwame" /></div>
+              <div class="fld"><label>Subtitle / tagline</label><input type="text" id="fSub" data-bind="subtitle" placeholder="are getting married" /></div>
+              <div class="fld"><label>Date &amp; time</label><input type="datetime-local" id="fDate" data-bind="date" /></div>
+              <div class="row2">
+                <div class="fld"><label>Venue</label><input type="text" id="fVenue" data-bind="venue" placeholder="Golden Tulip" /></div>
+                <div class="fld"><label>City / region</label><select id="fCity" data-bind="city"></select></div>
+              </div>
+              <div class="fld"><label>Address / landmark</label><input type="text" id="fAddress" data-bind="address" placeholder="Street, area" /></div>
+            </div>
+          </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">📖</span> About / story <span class="chev">▾</span></div>
+            <div class="ed-body"><div class="fld"><label>Tell guests about the day</label><textarea id="fStory" data-bind="story" placeholder="A warm welcome message…"></textarea></div></div>
+          </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">🕐</span> Order of the day <span class="chev">▾</span></div>
+            <div class="ed-body">
+              <div id="schList"></div>
+              <button class="add-row" id="schAdd">+ Add schedule item</button>
+            </div>
+          </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">👗</span> Details <span class="chev">▾</span></div>
+            <div class="ed-body">
+              <div class="fld"><label>Dress code</label><input type="text" id="fDress" data-bind="dressCode" placeholder="e.g. Royal green &amp; gold" /></div>
+              <div class="fld"><label>Map / parking note <span class="opt">(optional)</span></label><input type="text" id="fMapNote" data-bind="mapNote" /></div>
+            </div>
+          </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">💛</span> RSVP &amp; contributions <span class="chev">▾</span></div>
+            <div class="ed-body">
+              <div class="fld"><label>RSVP deadline</label><input type="date" id="fRsvp" data-bind="rsvpDeadline" /></div>
+              <div class="fld"><label class="toggle"><input type="checkbox" id="fPlus" data-bind="allowPlusOnes" /> <span>Allow plus-ones</span></label></div>
+              <div class="fld"><label class="toggle"><input type="checkbox" id="fContribOn" data-bind="contribution.enabled" /> <span>Show MoMo contribution button</span></label></div>
+              <div class="fld"><label>Contribution button text</label><input type="text" id="fContribLabel" data-bind="contribution.label" /></div>
+              <div class="row2">
+                <div class="fld"><label>MoMo number</label><input type="tel" id="fMomo" data-bind="contribution.momo" /></div>
+                <div class="fld"><label>Goal (GHS)</label><input type="number" id="fGoal" data-bind="contribution.goal" /></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- live preview -->
+        <div class="preview-pane">
+          <div class="pv-bar">
+            <div class="pv-toggle" id="pvToggle">
+              <button class="on" data-dev="mobile">📱 Mobile</button>
+              <button data-dev="desktop">💻 Desktop</button>
+            </div>
+            <span class="pv-link">durbar.app/e/ama-kwame</span>
+          </div>
+          <div class="pv-wrap mobile" id="pvWrap"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="tab" data-tab="dashboard">
+      <div class="dash-hero" id="dashHero"></div>
+      <div class="ai-note" id="dashAI"></div>
+      <div class="kpis" id="dKpis"></div>
+      <div class="two">
+        <div class="panel"><h3>Latest guests</h3><div id="dGuests"></div></div>
+        <div class="panel"><h3>Money at a glance</h3><div id="dMoney"></div></div>
+      </div>
+    </section>
+
+    <!-- ============ GUESTS ============ -->
+    <section class="tab" data-tab="guests">
+      <div class="tab-h"><h2>👥 Guests &amp; RSVP</h2><span class="pill-tip">No app download for guests</span></div>
+      <p class="sub">Add guests, group them, and track who's coming. Every "yes" feeds the headcount the dashboard and AI use.</p>
+      <div class="kpis" id="gKpis"></div>
+      <div class="addbar">
+        <div class="fld grow"><label>Name</label><input type="text" id="gName" placeholder="Guest name" /></div>
+        <div class="fld"><label>Phone</label><input type="tel" id="gPhone" placeholder="024…" /></div>
+        <div class="fld"><label>Group</label><select id="gGroup"></select></div>
+        <div class="fld"><label>RSVP</label><select id="gStatus"></select></div>
+        <div class="fld"><label>Party</label><input type="number" id="gParty" value="1" min="1" style="width:70px" /></div>
+        <button class="btn btn-pri" id="gAdd">+ Add guest</button>
+      </div>
+      <div class="panel">
+        <table class="tbl"><thead><tr><th>Guest</th><th>Group</th><th>RSVP</th><th>Party</th><th>Note</th><th></th></tr></thead><tbody id="gBody"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ============ MONEY ============ -->
+    <section class="tab" data-tab="money">
+      <div class="tab-h"><h2>💛 Contribution &amp; committee ledger</h2><span class="pill-tip">⭐ The Durbar wedge</span></div>
+      <p class="sub">Reconcile pledges, MoMo, cash &amp; diaspora money in — against vendor balances out. The AI flags the gap before the event, not after.</p>
+      <div class="kpis" id="mKpis"></div>
+      <div class="ai-note" id="ledgerAI"></div>
+      <div class="two">
+        <div class="panel">
+          <h3>💛 Money in — contributors</h3>
+          <div class="addbar">
+            <div class="fld grow"><label>Name</label><input type="text" id="cName" placeholder="Contributor" /></div>
+            <div class="fld"><label>Type</label><select id="cSub"><option>Committee</option><option>Family</option><option>Friends</option><option>Diaspora</option><option>Church</option><option>Guest</option></select></div>
+            <div class="fld"><label>Pledge</label><input type="number" id="cPledge" placeholder="0" style="width:90px" /></div>
+            <div class="fld"><label>Paid</label><input type="number" id="cPaid" placeholder="0" style="width:90px" /></div>
+            <button class="btn btn-pri" id="cAdd">+ Add</button>
+          </div>
+          <table class="tbl"><thead><tr><th>Contributor</th><th>Paid / pledge</th><th>Status</th><th></th></tr></thead><tbody id="cBody"></tbody></table>
+        </div>
+        <div class="panel">
+          <h3>🧾 Money out — vendors</h3>
+          <div class="addbar">
+            <div class="fld grow"><label>Vendor</label><input type="text" id="vName" placeholder="Vendor" /></div>
+            <div class="fld"><label>Category</label><select id="vCat"><option>Caterer</option><option>Decorator</option><option>Photographer</option><option>Venue</option><option>MC</option><option>DJ</option><option>Makeup</option><option>Rentals</option><option>Transport</option><option>Security</option></select></div>
+            <div class="fld"><label>Quote</label><input type="number" id="vTotal" placeholder="0" style="width:90px" /></div>
+            <div class="fld"><label>Paid</label><input type="number" id="vPaid" placeholder="0" style="width:90px" /></div>
+            <button class="btn btn-pri" id="vAdd">+ Add</button>
+          </div>
+          <table class="tbl"><thead><tr><th>Vendor</th><th>Paid / quote</th><th>Balance</th><th></th></tr></thead><tbody id="vBody"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="studio.js"></script>
+</body>
+</html>

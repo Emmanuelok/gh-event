@@ -8,6 +8,14 @@ Ghana-first event platform and Organizer Studio — built to be viewed online wh
 > actual payments, MoMo + cash + diaspora money in, and many vendor balances out, all in one
 > shared, trusted ledger. Today "the total spend only becomes clear after the event."
 
+## 🎨 The Studio (`studio.html`)
+
+`studio.html` is a **working, interactive event design studio** (not a mock-up): a WithJoy-style
+**live designer** (edit on the left, the event page renders live on the right), template & theme
+switching, a functional **guest manager**, and the **contribution & committee ledger** with live
+AI gap-alerts — all persisted in the browser via `localStorage`. Open `index.html` and click
+**“🎨 Open Studio”**, or go straight to `studio.html`.
+
 ## View it online (one-time, ~20 seconds)
 
 The site is a static site served straight from this branch. GitHub Pages just needs to be

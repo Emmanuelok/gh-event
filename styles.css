@@ -54,6 +54,8 @@ p{margin:0 0 1em}
 }
 .mainnav a:hover{background:var(--cream-2);color:var(--ink)}
 .mainnav a.active{background:var(--green);color:#fff}
+.mainnav a.nav-cta{background:var(--gold);color:#3a2a05}
+.mainnav a.nav-cta:hover{background:var(--gold-d);color:#3a2a05}
 .navtoggle{display:none;margin-left:auto;background:none;border:1px solid var(--line);border-radius:10px;font-size:20px;padding:4px 11px;cursor:pointer}
 
 /* ---- Views ---- */
