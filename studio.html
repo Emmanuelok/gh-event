@@ -61,12 +61,36 @@
             <div class="ed-body">
               <div class="fld"><label>Event title</label><input type="text" id="fTitle" data-bind="title" placeholder="Ama &amp; Kwame" /></div>
               <div class="fld"><label>Subtitle / tagline</label><input type="text" id="fSub" data-bind="subtitle" placeholder="are getting married" /></div>
+              <div class="fld"><label>Hosts <span class="opt">(families / organisers)</span></label><input type="text" id="fHosts" data-bind="hosts" placeholder="With the blessing of the … families" /></div>
+              <div class="fld"><label>Event hashtag <span class="opt">(optional)</span></label><input type="text" id="fHashtag" data-bind="hashtag" placeholder="AmaWedsKwame" /></div>
               <div class="fld"><label>Date &amp; time</label><input type="datetime-local" id="fDate" data-bind="date" /></div>
               <div class="row2">
                 <div class="fld"><label>Venue</label><input type="text" id="fVenue" data-bind="venue" placeholder="Golden Tulip" /></div>
                 <div class="fld"><label>City / region</label><select id="fCity" data-bind="city"></select></div>
               </div>
               <div class="fld"><label>Address / landmark</label><input type="text" id="fAddress" data-bind="address" placeholder="Street, area" /></div>
+            </div>
+          </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">🖼️</span> Cover photo <span class="chev">▾</span></div>
+            <div class="ed-body">
+              <div class="cover-edit">
+                <div class="cover-thumb empty" id="coverThumb"></div>
+                <div class="cover-acts">
+                  <label class="btn btn-sm filebtn">Upload cover<input type="file" id="fCoverFile" accept="image/*" hidden /></label>
+                  <button class="btn btn-sm" id="fCoverRemove" style="display:none">Remove</button>
+                  <p class="dim small">A photo makes the page sing. Auto-resized for fast loading on mobile data.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">📷</span> Gallery / memories <span class="dim small" id="galCount"></span><span class="chev">▾</span></div>
+            <div class="ed-body">
+              <label class="btn btn-sm filebtn">+ Add photos<input type="file" id="fGalleryFile" accept="image/*" multiple hidden /></label>
+              <div class="gallery-strip" id="galleryStrip"></div>
             </div>
           </div>
 
@@ -88,6 +112,8 @@
             <div class="ed-body">
               <div class="fld"><label>Dress code</label><input type="text" id="fDress" data-bind="dressCode" placeholder="e.g. Royal green &amp; gold" /></div>
               <div class="fld"><label>Map / parking note <span class="opt">(optional)</span></label><input type="text" id="fMapNote" data-bind="mapNote" /></div>
+              <div class="fld"><label>Google Maps link <span class="opt">(optional — overrides auto)</span></label><input type="text" id="fMapUrl" data-bind="mapUrl" placeholder="https://maps.app.goo.gl/…" /></div>
+              <div class="fld"><label>Title font</label><select id="fFont" data-bind="displayFont"><option value="serif">Elegant serif</option><option value="sans">Modern sans</option></select></div>
             </div>
           </div>
 
@@ -114,6 +140,7 @@
               <button data-dev="desktop">💻 Desktop</button>
             </div>
             <span class="pv-link">durbar.app/e/ama-kwame</span>
+            <button class="btn btn-gold btn-sm" id="btnGuest">👁️ Preview as guest</button>
           </div>
           <div class="pv-wrap mobile" id="pvWrap"></div>
         </div>
@@ -185,6 +212,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<script src="shared-event.js"></script>
 <script src="studio.js"></script>
 </body>
 </html>

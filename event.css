@@ -1,0 +1,43 @@
+/* Guest-facing event page — chrome around the shared .evpage render.
+   Loads after studio.css (reuses its tokens + .evpage / .ev-* styles). */
+html, body { height: auto; min-height: 100%; }
+body { overflow: auto !important; background: #e9e3d6; display: block; }
+
+.guest-top { background: #fff; border-bottom: 1px solid var(--line); }
+.gt-inner { max-width: 640px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; font-size: 12.5px; }
+.gt-brand { font-weight: 800; color: var(--green); }
+.gt-note { color: var(--muted); flex: 1; min-width: 0; }
+.gt-link { margin-left: auto; font-weight: 700; color: var(--ink-2); white-space: nowrap; }
+
+.guest-wrap { max-width: 600px; margin: 20px auto 48px; padding: 0 14px; }
+.guest-wrap .evpage { box-shadow: var(--shadow-lg); }
+.ev-btn { cursor: pointer; transition: filter .15s; }
+.ev-btn:hover { filter: brightness(.95); }
+.noev { max-width: 480px; margin: 80px auto; text-align: center; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 34px; box-shadow: var(--shadow); }
+.noev a { font-weight: 800; }
+
+/* modal */
+.modal { position: fixed; inset: 0; background: rgba(18, 24, 21, .55); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 60; }
+.modal.open { display: flex; }
+.sheet { background: #fff; border-radius: 18px; max-width: 430px; width: 100%; padding: 24px; box-shadow: var(--shadow-lg); position: relative; animation: pop .2s ease; max-height: 90vh; overflow: auto; }
+@keyframes pop { from { transform: translateY(14px); opacity: 0 } to { transform: none; opacity: 1 } }
+.sheet-x { position: absolute; top: 14px; right: 14px; border: 0; background: var(--bg); width: 30px; height: 30px; border-radius: 50%; font-weight: 800; cursor: pointer; color: var(--ink-2); }
+.sheet h3 { font-size: 20px; margin-bottom: 4px; }
+.sheet .lead { color: var(--muted); font-size: 13.5px; margin-bottom: 16px; }
+.sheet label { display: block; font-size: 11.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 12px 0 5px; }
+.sheet input { width: 100%; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; font-family: inherit; }
+.sheet input:focus { outline: 0; border-color: var(--green); box-shadow: 0 0 0 3px rgba(11, 110, 79, .12); }
+.seg { display: flex; gap: 7px; }
+.seg button { flex: 1; padding: 11px 4px; border: 1px solid var(--line); background: #fff; border-radius: 10px; font-weight: 700; font-size: 13.5px; cursor: pointer; }
+.seg button.on { background: var(--green); color: #fff; border-color: var(--green); }
+.step { display: flex; align-items: center; gap: 14px; }
+.step button { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: #fff; font-size: 22px; cursor: pointer; }
+.step span { font-size: 19px; font-weight: 800; min-width: 22px; text-align: center; }
+.go { width: 100%; margin-top: 18px; padding: 13px; border: 0; border-radius: 11px; background: var(--green); color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; }
+.go.gold { background: var(--gold); color: #3a2a05; }
+.momo-box { background: var(--bg); border: 1px dashed var(--line); border-radius: 11px; padding: 13px 15px; margin: 4px 0 4px; }
+.momo-box b { font-size: 18px; color: var(--green-d); letter-spacing: .02em; }
+.done { text-align: center; padding: 14px 4px; }
+.done .big { font-size: 44px; }
+.done h3 { margin: 8px 0 6px; }
+.done p { color: var(--ink-2); font-size: 14px; }

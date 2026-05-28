@@ -1,0 +1,96 @@
+/* ============================================================
+   Durbar — guest-facing event page.
+   Reads the event the studio designed (same localStorage key) and
+   lets guests RSVP / contribute. Both write BACK so they appear
+   in the studio's Guests, Money and Dashboard.
+   ============================================================ */
+(function () {
+  'use strict';
+  const $ = (s, c) => (c || document).querySelector(s);
+  const D = window.DURBAR;
+  const KEY = 'durbar.studio.v2';
+  const esc = D.esc, ghs = D.ghs;
+  const g = () => 'x' + Math.random().toString(36).slice(2, 9);
+
+  let state = null;
+  try { state = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+
+  const page = $('#page');
+  if (!state || !state.event) {
+    page.innerHTML = '<div class="noev"><h3>No event here yet</h3><p>This browser hasn\'t designed an event. <a href="studio.html">Open the Studio</a>, create one, then tap “Preview as guest”.</p></div>';
+    $('#guestTop').style.display = 'none';
+    return;
+  }
+  state.event.gallery = state.event.gallery || [];
+  state.contributors = state.contributors || [];
+  state.guests = state.guests || [];
+
+  const collected = () => state.contributors.reduce((a, c) => a + (+c.paid || 0), 0);
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function render() {
+    D.applyTheme(page, state.event.theme);
+    page.innerHTML = D.renderEventPage(state.event, { collected: collected(), mode: 'guest' });
+  }
+
+  page.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-action]'); if (!a) return;
+    if (a.dataset.action === 'rsvp') openRsvp();
+    else if (a.dataset.action === 'contribute') openContribute();
+  });
+
+  /* ---- modal ---- */
+  const modal = $('#modal'), body = $('#modalBody');
+  function open(html) { body.innerHTML = html; modal.classList.add('open'); }
+  function close() { modal.classList.remove('open'); }
+  $('#modalClose').addEventListener('click', close);
+  modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+
+  /* ---- RSVP ---- */
+  function openRsvp() {
+    let status = 'yes', party = state.event.allowPlusOnes ? 2 : 1;
+    open(`<h3>RSVP — ${esc(state.event.title)}</h3>
+      <p class="lead">Takes 20 seconds. No account needed.</p>
+      <label>Your name</label><input id="rName" placeholder="e.g. Akosua Mensah" />
+      <label>Will you join us?</label>
+      <div class="seg" id="rSeg"><button class="on" data-v="yes">Yes 🎉</button><button data-v="maybe">Maybe</button><button data-v="no">Can't make it</button></div>
+      ${state.event.allowPlusOnes ? `<label>How many in your party?</label><div class="step" id="rStep"><button data-s="-1">−</button><span id="rParty">${party}</span><button data-s="1">+</button></div>` : ''}
+      <label>Phone <span style="text-transform:none;font-weight:500">(so the host can reach you)</span></label><input id="rPhone" placeholder="024…" />
+      <label>Note <span style="text-transform:none;font-weight:500">(optional)</span></label><input id="rNote" placeholder="Congratulations! 💍" />
+      <button class="go" id="rGo">Send RSVP</button>`);
+    const seg = $('#rSeg');
+    seg.addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; status = b.dataset.v; Array.from(seg.children).forEach((x) => x.classList.toggle('on', x === b)); });
+    const stp = $('#rStep');
+    if (stp) stp.addEventListener('click', (e) => { const b = e.target.closest('[data-s]'); if (!b) return; party = Math.max(1, Math.min(20, party + (+b.dataset.s))); $('#rParty').textContent = party; });
+    $('#rGo').addEventListener('click', () => {
+      const name = $('#rName').value.trim(); if (!name) { $('#rName').focus(); return; }
+      state.guests.push({ id: g(), name, phone: $('#rPhone').value.trim(), group: 'Guest (RSVP)', status, party: status === 'yes' ? party : 0, note: $('#rNote').value.trim(), source: 'rsvp' });
+      save();
+      open(`<div class="done"><div class="big">✅</div><h3>Thank you, ${esc(name.split(' ')[0])}!</h3><p>Your RSVP is in${status === 'yes' ? ` for ${party}` : ''}. ${status === 'yes' ? "We'll WhatsApp you directions before the day." : 'We\'ll miss you!'}</p><p class="dim small" style="margin-top:10px">This now shows in the host's Studio → Guests.</p></div>`);
+      setTimeout(close, 2800);
+    });
+    $('#rName').focus();
+  }
+
+  /* ---- Contribute ---- */
+  function openContribute() {
+    const c = state.event.contribution || {};
+    open(`<h3>💛 ${esc(c.label || 'Contribute via MoMo')}</h3>
+      <p class="lead">Send Mobile Money to the host, then confirm here so it's tracked.</p>
+      <div class="momo-box">Send to <b>${esc(c.momo || '024 000 0000')}</b><br><span class="dim small">${esc(state.event.title)} · MTN / Telecel / AT MoMo</span></div>
+      <label>Your name</label><input id="dName" placeholder="e.g. Uncle Yaw" />
+      <label>Amount sent (GHS)</label><input id="dAmt" type="number" placeholder="200" />
+      <button class="go gold" id="dGo">I've sent it ✓</button>`);
+    $('#dGo').addEventListener('click', () => {
+      const name = $('#dName').value.trim(); const amt = +$('#dAmt').value || 0;
+      if (!name) { $('#dName').focus(); return; }
+      if (amt <= 0) { $('#dAmt').focus(); return; }
+      state.contributors.push({ id: g(), name, sub: 'Guest · MoMo', pledge: amt, paid: amt });
+      save(); render();
+      open(`<div class="done"><div class="big">🎉</div><h3>Medaase, ${esc(name.split(' ')[0])}!</h3><p>Your ${ghs(amt)} gift is recorded. A receipt would be sent by SMS in the live product.</p><p class="dim small" style="margin-top:10px">This now shows in the host's Studio → Money ledger.</p></div>`);
+      setTimeout(close, 2800);
+    });
+    $('#dName').focus();
+  }
+
+  render();
+})();
