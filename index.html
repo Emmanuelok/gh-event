@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Durbar — Ghana's all-in-one event command center. Plan, invite, collect MoMo, coordinate vendors and check-in, all in one place." />
+<meta name="theme-color" content="#0b6e4f" />
+<title>Durbar — Ghana's Event Command Center</title>
+<link rel="preconnect" href="" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b6e4f'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23f4b400' font-family='Georgia,serif'%3ED%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+<!-- Kente accent bar -->
+<div class="kente-bar" aria-hidden="true"></div>
+
+<!-- ============ TOP NAV ============ -->
+<header class="topbar">
+  <a class="brand" href="#overview" data-nav="overview">
+    <span class="brand-mark">D</span>
+    <span class="brand-text">Durbar<small>studio</small></span>
+  </a>
+  <nav class="mainnav" id="mainnav">
+    <a href="#overview" data-nav="overview" class="active">Overview</a>
+    <a href="#gap" data-nav="gap">The Gap</a>
+    <a href="#product" data-nav="product">Product</a>
+    <a href="#strategy" data-nav="strategy">Strategy</a>
+    <a href="#roadmap" data-nav="roadmap">Roadmap</a>
+    <a href="#pitch" data-nav="pitch">Pitch</a>
+  </nav>
+  <button class="navtoggle" id="navtoggle" aria-label="Toggle menu">☰</button>
+</header>
+
+<main>
+
+<!-- ============ OVERVIEW ============ -->
+<section class="view active" id="overview" data-view="overview">
+  <div class="hero">
+    <div class="hero-inner">
+      <span class="pill">🇬🇭 Built for Ghana — not adapted from abroad</span>
+      <h1>The all-in-one <span class="hl">event command center</span> for Ghana.</h1>
+      <p class="lead">Plan it, invite by WhatsApp, collect MoMo, track every pledge and vendor cedi, check guests in — and keep the memories. One place instead of five WhatsApp groups, three spreadsheets and a notebook.</p>
+      <div class="hero-cta">
+        <a class="btn btn-gold" href="#product" data-nav="product">See the product →</a>
+        <a class="btn btn-ghost" href="#gap" data-nav="gap">The pain we solve</a>
+      </div>
+      <div class="hero-meta">
+        <span>📱 Mobile-first</span><span>💚 WhatsApp-native</span><span>💛 MoMo-first</span><span>⚡ Low-data fast</span>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="ps-cover">
+            <div class="ps-cover-txt"><small>WHITE WEDDING</small><strong>Ama &amp; Kwame</strong><span>14 Dec 2026 · Kumasi</span></div>
+          </div>
+          <div class="ps-count">⏳ 23 days to go</div>
+          <div class="ps-row"><span>💛 Contributed</span><b>GHS 8,800</b></div>
+          <div class="ps-row"><span>✅ RSVP yes</span><b>312</b></div>
+          <div class="ps-btn">RSVP — no app needed</div>
+          <div class="ps-btn ps-btn-2">Contribute via MoMo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="callout">
+      <h3>Product vision &amp; positioning</h3>
+      <p><strong>Durbar is Ghana's smart event command center.</strong> It combines event pages, invitations, RSVP, guest management, MoMo payment &amp; contribution tracking, vendor coordination, an AI planning assistant, reminders, ticketing, check-in and post-event memories — designed for how Ghanaians actually run events: on WhatsApp, with mobile money, by families and committees.</p>
+      <p class="muted">Positioning line: <em>“Durbar — plan it, invite them, collect the money, run the day. The all-in-one event command center for Ghana.”</em></p>
+      <p class="muted small">Working brand name is <strong>Durbar</strong> (a grand Ghanaian gathering). Alternatives if you prefer: <strong>Afahye</strong>, <strong>Boafo</strong>, <strong>Fie</strong>, <strong>Nhyira</strong>. Easy to swap — say the word.</p>
+    </div>
+
+    <h2 class="section-h">Who it's for</h2>
+    <div class="grid grid-3">
+      <div class="card"><div class="ico">💍</div><h4>Couples</h4><p>White weddings, traditional marriage (engagement), Sunday thanksgiving — the highest-stress, most expensive events in Ghana.</p></div>
+      <div class="card"><div class="ico">👨‍👩‍👧‍👦</div><h4>Families &amp; committees</h4><p>Birthdays, naming ceremonies, funerals/memorials, anniversaries — planned by many hands, funded by many pockets.</p></div>
+      <div class="card"><div class="ico">📋</div><h4>Event planners</h4><p>Managing several clients at once and needing one professional dashboard instead of chaos per event.</p></div>
+      <div class="card"><div class="ico">📸</div><h4>Vendors</h4><p>Photographers, caterers, decorators, MCs, DJs, makeup artists, venues, rentals, transport — discovered, booked, paid, reviewed.</p></div>
+      <div class="card"><div class="ico">⛪</div><h4>Churches, schools &amp; groups</h4><p>Harvests, conventions, speech days, old-students reunions, sports days, social clubs with recurring events and dues.</p></div>
+      <div class="card"><div class="ico">🎟️</div><h4>Guests</h4><p>Simple RSVP, directions, a ticket, a reminder, a way to contribute — with <strong>no forced app download</strong>.</p></div>
+    </div>
+
+    <h2 class="section-h">The honest principle</h2>
+    <div class="callout callout-warn">
+      <p><strong>We will not build a bloated everything-app on day one.</strong> Durbar wins <em>one</em> category first — Ghana weddings, traditional ceremonies, birthdays and private parties — then earns the right to expand into public/ticketed events, sports and community groups. Everything on this site is organized around that discipline: a focused MVP, then a scalable roadmap.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE GAP ============ -->
+<section class="view" id="gap" data-view="gap">
+  <div class="wrap">
+    <span class="eyebrow">Deliverable · Market research &amp; the unsolved problem</span>
+    <h1 class="big">The gap nobody in Ghana has closed</h1>
+    <p class="lead">We searched the Ghanaian event landscape — ticketing platforms, funeral tools, wedding checklists, vendor pages and the global incumbents. Here is the one painful, recurring complaint that <strong>no major platform serving Ghana has solved.</strong></p>
+
+    <div class="insight">
+      <div class="insight-tag">⭐ THE CRITICAL UNSOLVED PAIN POINT</div>
+      <h2>Nobody can reconcile the <span class="hl">money and the people</span> for a committee-planned event.</h2>
+      <p>Ghanaian events are <strong>funded and organised collectively</strong> — wedding committees, family funeral committees, church and old-students groups. Money flows in as <strong>pledges → partial payments → cash → MoMo from dozens of different phone numbers and the diaspora</strong>. Money flows out to many vendors, paid by different people. There is <strong>no single trusted, shared ledger</strong> that answers, in real time and visible to the whole committee:</p>
+      <ul class="insight-q">
+        <li>Who <em>pledged</em>, and who has actually <em>paid</em>?</li>
+        <li>How much is still out there to collect?</li>
+        <li>What have we spent, what do we still owe vendors, and what's the real balance?</li>
+      </ul>
+      <p>Today this lives in one overwhelmed person's head, a paper notebook, and three WhatsApp groups — so, as families told researchers, <strong>“the total spend only becomes clear after the funeral,”</strong> often after the family has gone into debt.</p>
+    </div>
+
+    <h2 class="section-h">What the evidence shows</h2>
+    <div class="grid grid-2">
+      <div class="ev">
+        <h4>✅ Already solved — public ticketing</h4>
+        <p>eGotickets, Tix.africa and Ayatickets already sell tickets to strangers with MTN MoMo, USSD and WhatsApp. Eventbrite struggles in Ghana only because it has <strong>no mobile-money support</strong> and forces foreign cards. So selling concert tickets is a crowded, solved space — <em>not</em> our wedge.</p>
+      </div>
+      <div class="ev">
+        <h4>⚠️ Half-solved — money in</h4>
+        <p>Funeral &amp; memorial tools (donation links, FuneralDon, M-Changa) collect money one-way via a link. They <strong>do not reconcile against a named contributor list, pledges, or expenses</strong>, and they're disconnected from the guest list, RSVP and vendors.</p>
+      </div>
+      <div class="ev">
+        <h4>❌ Unsolved — committee pledges</h4>
+        <p>Wedding &amp; funeral committees run on pledges that members routinely fail to fulfil. Tracking happens in WhatsApp groups and ad-hoc spreadsheets. There is no tool that turns a pledge into a tracked, reminded, reconciled payment.</p>
+      </div>
+      <div class="ev">
+        <h4>❌ Unsolved — headcount vs the pot of food</h4>
+        <p>With everything on WhatsApp, no one has a real headcount, so <strong>food runs out or money is wasted</strong>. Nothing connects "480 people said yes" to "you budgeted 350 plates."</p>
+      </div>
+      <div class="ev">
+        <h4>❌ Unsolved — vendor trust</h4>
+        <p>Deposits are paid with no contract and no recourse; vendors go silent or fail to show. No verification, reviews, receipts or escrow exists for everyday Ghanaian events.</p>
+      </div>
+      <div class="ev">
+        <h4>❌ Unsolved — it's all scattered</h4>
+        <p>Planning is fragmented across WhatsApp, spreadsheets, phone calls, MoMo messages and vendor DMs. No command center pulls it together for the people actually running the event.</p>
+      </div>
+    </div>
+
+    <h2 class="section-h">Why the global apps can't just copy this</h2>
+    <p class="lead-sm">Eventbrite, WithJoy, Evite and Luma are built for a Western model: one host, card payments, a guest who clicks "yes." None of them have a <strong>committee contribution &amp; pledge-reconciliation ledger</strong>, because Western events aren't funded by 40 relatives sending MoMo from 12 networks. This is a structurally Ghanaian (and West-African) problem — which is exactly why a Ghana-native product can own it.</p>
+
+    <div class="compare">
+      <table>
+        <thead><tr><th>Capability</th><th>Eventbrite</th><th>WithJoy / Evite</th><th>Tix / eGotickets</th><th class="us">Durbar</th></tr></thead>
+        <tbody>
+          <tr><td>MoMo-first payments</td><td>✗</td><td>✗</td><td>✓</td><td class="us">✓</td></tr>
+          <tr><td>WhatsApp-native invites &amp; RSVP</td><td>~</td><td>~</td><td>~</td><td class="us">✓</td></tr>
+          <tr><td>Pledge → payment reconciliation</td><td>✗</td><td>✗</td><td>✗</td><td class="us">✓ core</td></tr>
+          <tr><td>Multi-source contribution ledger</td><td>✗</td><td>✗</td><td>✗</td><td class="us">✓ core</td></tr>
+          <tr><td>Committee / multi-admin planning</td><td>~</td><td>✗</td><td>✗</td><td class="us">✓</td></tr>
+          <tr><td>Vendor coordination + balances</td><td>✗</td><td>~</td><td>✗</td><td class="us">✓</td></tr>
+          <tr><td>AI money/headcount risk alerts</td><td>✗</td><td>✗</td><td>✗</td><td class="us">✓</td></tr>
+          <tr><td>Ghana templates (traditional, funeral, naming)</td><td>✗</td><td>✗</td><td>✗</td><td class="us">✓</td></tr>
+        </tbody>
+      </table>
+      <p class="legend">✓ strong · ~ partial/weak · ✗ none</p>
+    </div>
+
+    <div class="callout">
+      <h3>Our wedge → our moat</h3>
+      <p><strong>Wedge:</strong> be the <em>Contribution &amp; Committee Ledger</em> for weddings, funerals and family events — the one trusted place where pledges, MoMo, cash, diaspora money and vendor balances reconcile in real time, visible to the whole committee. <strong>Moat:</strong> once a family's money and guest list live in Durbar, the event page, RSVP, vendors, reminders and check-in come along for free — and the next family event starts here too.</p>
+    </div>
+
+    <p class="sources">Sources informing this section: Global Press Journal &amp; Remembers Group (Ghana funeral cost &amp; multi-contributor tracking); Tix.africa &amp; ensun (Eventbrite's lack of MoMo, local ticketing landscape); eGotickets (USSD/WhatsApp/MoMo ticketing); FuneralPress &amp; EBITS FuneralDon (manual donation books); "Failing My Wedding Committee Pledges" and Ghanaian wedding-committee accounts (pledge fulfilment &amp; WhatsApp-group chaos); withjoy.com &amp; wedding-planner guidance (RSVP headcount vs catering). Full links provided in the written brief.</p>
+  </div>
+</section>
+
+<!-- ============ PRODUCT (INTERACTIVE PROTOTYPE) ============ -->
+<section class="view" id="product" data-view="product">
+  <div class="wrap">
+    <span class="eyebrow">Deliverable · Interactive prototype &amp; suggested screens</span>
+    <h1 class="big">The product, clickable</h1>
+    <p class="lead">A working feel of Durbar. Tap through the guest-facing event page, the WhatsApp-first RSVP, the contribution ledger (our wedge — it's live, try the toggles), the AI assistant, and the Organizer Studio dashboard.</p>
+
+    <div class="proto-tabs" id="protoTabs">
+      <button class="ptab active" data-screen="event">📄 Event page</button>
+      <button class="ptab" data-screen="rsvp">✋ RSVP</button>
+      <button class="ptab" data-screen="ledger">💛 Contribution ledger</button>
+      <button class="ptab" data-screen="ai">🤖 AI assistant</button>
+      <button class="ptab" data-screen="studio">📊 Organizer Studio</button>
+    </div>
+
+    <!-- EVENT PAGE -->
+    <div class="screen active" data-screen="event">
+      <div class="device-row">
+        <div class="phone phone-lg">
+          <div class="phone-notch"></div>
+          <div class="phone-screen scroll">
+            <div class="ps-cover ps-cover-tall">
+              <span class="ribbon">White Wedding</span>
+              <div class="ps-cover-txt center"><strong class="big-names">Ama &amp; Kwame</strong><span>Saturday, 14 December 2026</span><span>Manhyia, Kumasi</span></div>
+            </div>
+            <div class="ps-count center">⏳ 23 days · 14 hrs to go</div>
+            <div class="ps-section"><h5>📍 Venue &amp; directions</h5><p>Golden Tulip, Kumasi. <a class="ilink">Open in Maps →</a></p></div>
+            <div class="ps-section"><h5>🕐 Order of the day</h5>
+              <ul class="timeline-mini"><li><b>9:00</b> Traditional rites (Manhyia)</li><li><b>12:30</b> White wedding (Cathedral)</li><li><b>3:00</b> Reception (Golden Tulip)</li></ul>
+            </div>
+            <div class="ps-section"><h5>👗 Dress code</h5><p>Royal green &amp; gold · Kente accents welcome</p></div>
+            <div class="ps-actions">
+              <div class="ps-btn">✋ RSVP — no app needed</div>
+              <div class="ps-btn ps-btn-2">💛 Send a gift via MoMo</div>
+              <div class="ps-btn ps-btn-3">📷 View the gallery</div>
+            </div>
+            <div class="ps-foot">Hosted with 💚 on Durbar · Private event</div>
+          </div>
+        </div>
+        <div class="screen-notes">
+          <h3>Beautiful, Ghana-friendly event pages</h3>
+          <p>Every event gets a fast-loading page with the details guests actually need: schedule, venue + map, dress code, RSVP, gift/contribution and a gallery. Templates ship for <strong>white wedding, traditional marriage, engagement, birthday, naming, funeral/memorial, church, school, sports, corporate and social-group</strong> events.</p>
+          <ul class="ticks">
+            <li>Loads on 3G in under 2 seconds — images lazy-load, page is mostly text.</li>
+            <li>One tap to share to WhatsApp status or a group.</li>
+            <li>Host controls privacy: public, unlisted (link-only), or invite-only.</li>
+            <li>Guest list is <strong>never</strong> exposed publicly unless the host chooses.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- RSVP -->
+    <div class="screen" data-screen="rsvp">
+      <div class="device-row">
+        <div class="phone phone-lg">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="ps-head">RSVP · Ama &amp; Kwame</div>
+            <div class="form-demo">
+              <label>Your name</label>
+              <input type="text" value="Akosua Mensah" />
+              <label>Will you join us?</label>
+              <div class="seg" id="rsvpSeg">
+                <button class="seg-b active" data-v="yes">Yes 🎉</button>
+                <button class="seg-b" data-v="maybe">Maybe</button>
+                <button class="seg-b" data-v="no">Can't make it</button>
+              </div>
+              <label>How many in your party?</label>
+              <div class="stepper"><button data-step="-1">−</button><span id="partyN">2</span><button data-step="1">+</button></div>
+              <label>Note to the couple <small>(optional)</small></label>
+              <input type="text" value="Congratulations! 💍" />
+              <div class="ps-btn full" id="rsvpSubmit">Send RSVP</div>
+              <div class="rsvp-done" id="rsvpDone">✅ Thank you, Akosua! Your RSVP for <b id="rsvpParty">2</b> is in. We'll WhatsApp you directions a day before.</div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-notes">
+          <h3>WhatsApp-first RSVP &amp; guest tracking</h3>
+          <p>Hosts invite by shareable link, WhatsApp, SMS, QR code or contact import. Guests RSVP in seconds — <strong>no account, no app download.</strong> Their phone number, plus-ones and notes flow straight into the guest list.</p>
+          <ul class="ticks">
+            <li>Track <strong>attending / not / maybe / pending</strong>, plus-ones and special notes (dietary, access, VIP).</li>
+            <li>Group guests: family, friends, VIP, coworkers, church, school, team.</li>
+            <li>Auto-reminders nudge the "pending" list over WhatsApp/SMS.</li>
+            <li>Every "yes" updates the headcount the AI uses to sanity-check the food budget.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRIBUTION LEDGER (THE WEDGE) -->
+    <div class="screen" data-screen="ledger">
+      <div class="ledger-wrap">
+        <div class="ledger-head">
+          <div><span class="wedge-tag">⭐ Our wedge — try it</span><h3>Contribution &amp; Committee Ledger</h3>
+          <p class="muted">Tap a contributor to mark their pledge fully paid, or “record a MoMo payment.” Watch the totals and the AI risk alert update live.</p></div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi"><span>Pledged</span><b id="kPledged">GHS 0</b></div>
+          <div class="kpi"><span>Collected</span><b id="kCollected" class="good">GHS 0</b></div>
+          <div class="kpi"><span>Still to collect</span><b id="kOutstanding" class="warn">GHS 0</b></div>
+          <div class="kpi"><span>Owed to vendors</span><b id="kVendorDue" class="bad">GHS 0</b></div>
+          <div class="kpi kpi-bal"><span>Real balance</span><b id="kBalance">GHS 0</b></div>
+        </div>
+
+        <div class="ledger-cols">
+          <div class="ledger-col">
+            <h4>💛 Money in — contributors</h4>
+            <div id="contribList" class="lrows"></div>
+            <button class="ps-btn full" id="recordMomo">+ Record a MoMo payment</button>
+          </div>
+          <div class="ledger-col">
+            <h4>🧾 Money out — vendors</h4>
+            <div id="vendorList" class="lrows"></div>
+          </div>
+        </div>
+
+        <div class="ai-risk" id="ledgerRisk"></div>
+        <div class="screen-notes flat">
+          <h4>Why this is the moat</h4>
+          <p>This is what no platform in Ghana does: a <strong>shared, trusted reconciliation</strong> of pledges, multi-source MoMo + cash + diaspora money, and vendor balances — visible to the whole committee, with the AI flagging the gap <em>before</em> the event, not after. Receipts auto-generate; reminders chase unfulfilled pledges; every admin sees the same truth.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI ASSISTANT -->
+    <div class="screen" data-screen="ai">
+      <div class="device-row">
+        <div class="phone phone-lg">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="ps-head">🤖 Durbar Assistant</div>
+            <div class="chat" id="aiChat">
+              <div class="msg user">Help me plan a wedding for 14 Dec, budget GHS 60,000, about 300 guests in Kumasi.</div>
+              <div class="msg bot">Here's a realistic plan. 🗓️ <b>Timeline:</b> book venue &amp; caterer by Aug (4 months out), send invites by Oct, lock numbers 2 weeks before.</div>
+              <div class="msg bot">💰 <b>Budget split for GHS 60,000:</b> Catering 38% · Venue 18% · Decor 12% · Photo/Video 12% · Outfits 8% · MC/DJ 6% · Misc 6%.</div>
+              <div class="msg bot risk">⚠️ <b>Risk:</b> 300 guests at GHS 85/plate = GHS 25,500 — that's 42% of budget, above the 38% target. Either lift catering to GHS 22,800 (trim ~30 guests) or raise the budget by GHS 3,000.</div>
+              <div class="msg bot">✍️ Want me to draft the WhatsApp invitation and a gentle reminder for guests who haven't RSVP'd?</div>
+            </div>
+            <div class="chat-actions">
+              <button class="chip" data-ai="invite">Draft invite</button>
+              <button class="chip" data-ai="reminder">Reminder message</button>
+              <button class="chip" data-ai="vendor">Vendor questions</button>
+              <button class="chip" data-ai="status">Status summary</button>
+            </div>
+          </div>
+        </div>
+        <div class="screen-notes">
+          <h3>A practical planning assistant — not a gimmicky chatbot</h3>
+          <p>The AI does the boring, high-value work a stressed host or committee secretary needs done. It's grounded in the event's real data (date, guest count, budget, pledges, vendor balances) so its advice is specific, not generic.</p>
+          <ul class="ticks">
+            <li>Generates timelines, realistic budgets and event-specific checklists.</li>
+            <li>Drafts invitations &amp; WhatsApp reminders in a warm, Ghana-appropriate tone.</li>
+            <li>Suggests the right questions to ask each vendor type.</li>
+            <li><strong>Detects risk:</strong> too many guests for the food budget, unpaid vendor balances, unfulfilled pledges, missing venue details, late reminders.</li>
+            <li>Summarises event status for the host in one tap.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORGANIZER STUDIO -->
+    <div class="screen" data-screen="studio">
+      <div class="studio">
+        <div class="studio-side">
+          <div class="ss-brand"><span class="brand-mark sm">D</span> Studio</div>
+          <a class="ss-item active">📊 Dashboard</a>
+          <a class="ss-item">🗓️ Events <span class="badge">4</span></a>
+          <a class="ss-item">👥 Guests</a>
+          <a class="ss-item">💛 Money</a>
+          <a class="ss-item">🧾 Vendors</a>
+          <a class="ss-item">✅ Checklist</a>
+          <a class="ss-item">🔔 Reminders</a>
+          <a class="ss-item">🎟️ Check-in</a>
+          <a class="ss-item">⚙️ Roles</a>
+        </div>
+        <div class="studio-main">
+          <div class="studio-top"><h3>Ama &amp; Kwame — White Wedding</h3><span class="status-ok">On track · 23 days out</span></div>
+          <div class="kpis kpis-4">
+            <div class="kpi"><span>RSVP yes</span><b class="good">312</b><small>of 480 invited</small></div>
+            <div class="kpi"><span>Collected</span><b>GHS 8,800</b><small>of GHS 11,800 pledged</small></div>
+            <div class="kpi"><span>Vendor balance</span><b class="bad">GHS 6,700</b><small>3 vendors</small></div>
+            <div class="kpi"><span>Checklist</span><b>72%</b><small>18 / 25 done</small></div>
+          </div>
+          <div class="studio-grid">
+            <div class="panel">
+              <h5>RSVP breakdown</h5>
+              <div class="bar"><span style="width:65%" class="b-good"></span></div><p class="bar-l">Yes 312 · Maybe 41 · No 22 · Pending 105</p>
+            </div>
+            <div class="panel">
+              <h5>Upcoming reminders</h5>
+              <ul class="mini-list"><li>🔔 Chase 105 pending RSVPs — <b>today</b></li><li>💛 Remind Uncle Yaw (pledge unpaid) — <b>Fri</b></li><li>🧾 Caterer balance GHS 2,500 — <b>in 6 days</b></li></ul>
+            </div>
+            <div class="panel">
+              <h5>Vendors</h5>
+              <ul class="mini-list"><li>📷 Photographer — bal <b>GHS 1,500</b></li><li>🍲 Caterer — bal <b>GHS 2,500</b></li><li>🎀 Decorator — bal <b>GHS 1,500</b></li><li>🏛️ Venue — <span class="good">paid</span></li></ul>
+            </div>
+            <div class="panel">
+              <h5>Team &amp; roles</h5>
+              <ul class="mini-list"><li>👰 Ama — Owner</li><li>🤵 Kwame — Admin</li><li>👩 Auntie Akosua — Finance (ledger only)</li><li>🧑 Bro. Kofi — Guests only</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-notes flat">
+        <h3>Organizer Studio — the dashboard for power users</h3>
+        <p>One control room for planners, churches, schools, sports admins and vendors: every event, guest analytics, RSVP status, money, checklists, vendors, reminders, messages and check-in — with <strong>multiple admins and role-based permissions</strong> (e.g. an aunt who only touches the ledger, a friend who only manages guests).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STRATEGY ============ -->
+<section class="view" id="strategy" data-view="strategy">
+  <div class="wrap">
+    <span class="eyebrow">Deliverable · The written brief</span>
+    <h1 class="big">Strategy &amp; architecture</h1>
+    <p class="lead">Personas, journeys, what's in the MVP, what we deliberately postpone, the information architecture, data model, tech stack, AI, integrations, privacy and the expansion roadmaps.</p>
+
+    <div class="strat-nav" id="stratNav">
+      <button class="active" data-acc="personas">Personas</button>
+      <button data-acc="journeys">Journeys</button>
+      <button data-acc="mvp">MVP features</button>
+      <button data-acc="postpone">Postpone</button>
+      <button data-acc="ia">Info architecture</button>
+      <button data-acc="db">Data model</button>
+      <button data-acc="stack">Tech stack</button>
+      <button data-acc="ai">AI</button>
+      <button data-acc="integrations">Payments &amp; comms</button>
+      <button data-acc="privacy">Privacy &amp; security</button>
+      <button data-acc="vendor">Vendor roadmap</button>
+      <button data-acc="expansion">Sports &amp; groups</button>
+    </div>
+
+    <!-- PERSONAS -->
+    <div class="acc active" data-acc="personas">
+      <h2 class="section-h">User personas for Ghana</h2>
+      <div class="grid grid-2">
+        <div class="persona"><h4>👰🏾 Ama — the bride (the committee secretary)</h4><p class="role">28, Kumasi, marketing exec</p><p>Planning a traditional + white wedding for 300+ with a committee of 15. Drowning in WhatsApp groups; can't tell who has paid their pledge. <b>Needs:</b> one shared money ledger, a guest headcount she trusts, and an AI that tells her if she's heading for trouble. <b>Wins when:</b> she opens one screen and sees the truth.</p></div>
+        <div class="persona"><h4>👨🏾‍🦳 Nana Yaw — the family elder</h4><p class="role">61, Takoradi, organising a parent's funeral</p><p>Coordinating a one-week, burial and final-funeral with relatives abroad sending money. Fears overspending and family disputes over money. <b>Needs:</b> transparent contributions, vendor balances, dignified event page. <b>Wins when:</b> nobody can ask "where did the money go?"</p></div>
+        <div class="persona"><h4>💼 Efua — the event planner</h4><p class="role">34, Accra, runs a 3-person planning studio</p><p>Juggling 6 clients. Re-creates the same spreadsheets each time and chases vendors by phone. <b>Needs:</b> a multi-event dashboard, reusable templates, client-shareable views, professional receipts. <b>Wins when:</b> she runs 12 events with the effort of 6.</p></div>
+        <div class="persona"><h4>📸 Kojo — the vendor (photographer)</h4><p class="role">30, Accra, growing studio</p><p>Gets leads from Instagram DMs, loses track of deposits and dates, sometimes double-books. <b>Needs:</b> discovery, an inquiry inbox, a booking calendar, deposit tracking, reviews that build trust. <b>Wins when:</b> Durbar sends him qualified, paying leads.</p></div>
+        <div class="persona"><h4>⛪ Pastor Mensah — the church admin</h4><p class="role">45, Kumasi, 800-member church</p><p>Runs harvests, conventions, anniversaries with dues and recurring events. <b>Needs:</b> member roles, dues tracking, attendance, announcements, recurring events. <b>Wins when:</b> the harvest target is met and tracked transparently.</p></div>
+        <div class="persona"><h4>🎉 Akosua — the guest</h4><p class="role">26, Accra, invited to 4 events this year</p><p>On a tight data plan. Hates downloading apps to RSVP. Wants directions, to send a MoMo gift, and a reminder. <b>Wins when:</b> she RSVPs and gifts in under 30 seconds, no signup.</p></div>
+      </div>
+    </div>
+
+    <!-- JOURNEYS -->
+    <div class="acc" data-acc="journeys">
+      <h2 class="section-h">Main user journeys</h2>
+      <div class="journey"><h4>1 · Host creates an event</h4><div class="flow"><span>Pick event type</span><span>Choose template</span><span>Add date, venue, schedule, dress code, privacy</span><span>Page auto-generated</span><span>Invite committee admins with roles</span></div></div>
+      <div class="journey"><h4>2 · Guest is invited &amp; responds</h4><div class="flow"><span>Gets WhatsApp link</span><span>Opens fast page (no app)</span><span>RSVP yes/no/maybe + party size</span><span>Optional MoMo gift</span><span>Gets reminder + directions before the day</span></div></div>
+      <div class="journey"><h4>3 · Committee collects &amp; reconciles money (the wedge)</h4><div class="flow"><span>Add contributors &amp; pledges</span><span>Record MoMo/cash payments</span><span>Ledger reconciles in real time</span><span>AI flags the gap</span><span>Auto-reminders chase unpaid pledges</span><span>Receipts issued</span></div></div>
+      <div class="journey"><h4>4 · Host coordinates vendors</h4><div class="flow"><span>Add vendor + quote</span><span>Record deposit &amp; balance + due date</span><span>Store contract/files</span><span>Reminders before balance due</span><span>(Later) book verified vendors in-app</span></div></div>
+      <div class="journey"><h4>5 · Event day &amp; after</h4><div class="flow"><span>QR / name check-in (offline-friendly)</span><span>Live attendance count</span><span>Post-event shared album</span><span>Thank-you messages</span><span>Archive page &amp; learnings</span></div></div>
+    </div>
+
+    <!-- MVP -->
+    <div class="acc" data-acc="mvp">
+      <h2 class="section-h">MVP feature list <span class="tag-green">build now</span></h2>
+      <p class="lead-sm">Scope: <strong>private &amp; semi-private events</strong> — weddings, traditional ceremonies, birthdays, naming, funerals/memorials, private parties.</p>
+      <div class="grid grid-2">
+        <div class="mvp-card"><h4>1 · Event setup</h4><ul><li>Create by type · choose template</li><li>Title, date, venue + map, schedule, dress code, host contacts</li><li>Privacy: public / unlisted / invite-only</li><li>Auto-generated, low-data event page</li></ul></div>
+        <div class="mvp-card"><h4>2 · Guest &amp; RSVP</h4><ul><li>Add guests manually; CSV import</li><li>Groups: family, friends, VIP, church, team…</li><li>RSVP link via WhatsApp / SMS / email</li><li>Track yes/no/maybe/pending, plus-ones, notes</li></ul></div>
+        <div class="mvp-card hero-feat"><h4>3 · Payments &amp; contributions ⭐</h4><ul><li><strong>Contribution &amp; committee ledger</strong> (the wedge)</li><li>Pledges vs payments; multi-source (MoMo/cash/diaspora)</li><li>Manual payment marking in MVP; vendor deposits, dues, balances</li><li>Receipts &amp; payment reminders</li></ul></div>
+        <div class="mvp-card"><h4>4 · Checklist &amp; budget</h4><ul><li>Event-specific checklists</li><li>Budget categories (venue, catering, decor, photo, music, outfits, MC, security, rentals, printing, misc)</li><li>Estimated vs actual</li><li>Risk alerts on budget / headcount / deadlines</li></ul></div>
+        <div class="mvp-card"><h4>5 · Vendor coordination</h4><ul><li>Add vendor: contact, category, quote, deposit, balance, due date, notes, files</li><li>Balance-due reminders</li><li>(Marketplace comes later)</li></ul></div>
+        <div class="mvp-card"><h4>6 · AI planning assistant</h4><ul><li>Timeline from event date</li><li>Budget from guest count + type</li><li>Invitation &amp; reminder drafting</li><li>Vendor questions · risk detection · status summary</li></ul></div>
+        <div class="mvp-card"><h4>7 · Organizer Studio</h4><ul><li>Multi-event dashboard</li><li>Guest analytics, RSVP, money, checklist, vendors, reminders</li><li>Multiple admins + role-based permissions</li></ul></div>
+        <div class="mvp-card"><h4>8 · Light memories</h4><ul><li>Post-event shared album (upload photos/videos)</li><li>Thank-you message blast</li><li>Archive page</li></ul></div>
+      </div>
+      <p class="muted small">Note: ticketing &amp; check-in are designed in the MVP architecture but switched on right after RSVP + payments are solid (see roadmap).</p>
+    </div>
+
+    <!-- POSTPONE -->
+    <div class="acc" data-acc="postpone">
+      <h2 class="section-h">Deliberately postponed <span class="tag-red">not yet</span></h2>
+      <p class="lead-sm">Saying no on day one is the strategy. These are valuable — later.</p>
+      <div class="grid grid-2">
+        <div class="card"><h4>🛒 Full vendor marketplace</h4><p>Verified listings, portfolios, availability calendars, in-app booking &amp; payments, ratings. MVP only tracks vendors you already have. (Phase 2–3.)</p></div>
+        <div class="card"><h4>🎟️ Public ticketing at scale</h4><p>Paid tiers, promo codes, scanning, payouts. The space is crowded; we add it once private events love us. (Phase 2.)</p></div>
+        <div class="card"><h4>🏆 Sports tournaments</h4><p>Fixtures, results, standings, team registration. (Phase 3.)</p></div>
+        <div class="card"><h4>👥 Recurring group management</h4><p>Dues cycles, polls, member roles, attendance for clubs/alumni. (Phase 3.)</p></div>
+        <div class="card"><h4>💳 Live payment integration</h4><p>Auto MoMo collection/reconciliation via aggregator. MVP marks payments manually; we wire real APIs in Phase 2 once volume justifies fees &amp; compliance.</p></div>
+        <div class="card"><h4>🔐 Escrow &amp; vendor guarantees</h4><p>Holding deposits to protect both sides. High-value, high-complexity (regulatory). (Phase 3+.)</p></div>
+        <div class="card"><h4>📱 Native mobile apps</h4><p>Start as a fast PWA. Native apps only when retention proves them worth it.</p></div>
+        <div class="card"><h4>🌍 Multi-country expansion</h4><p>Nigeria/diaspora later. Win Ghana decisively first.</p></div>
+      </div>
+    </div>
+
+    <!-- IA -->
+    <div class="acc" data-acc="ia">
+      <h2 class="section-h">Information architecture</h2>
+      <div class="ia">
+        <div class="ia-col">
+          <h4>🌐 Public / guest surface (no login)</h4>
+          <ul class="tree">
+            <li>Event landing page <span>/e/&lt;slug&gt;</span>
+              <ul><li>Details · schedule · venue/map · dress code</li><li>RSVP form</li><li>Contribute / gift (MoMo)</li><li>Tickets (when enabled)</li><li>Gallery / memories (post-event)</li></ul>
+            </li>
+            <li>RSVP confirmation &amp; "add to calendar"</li>
+            <li>Public receipt / contribution confirmation</li>
+          </ul>
+        </div>
+        <div class="ia-col">
+          <h4>🔐 Organizer Studio (login)</h4>
+          <ul class="tree">
+            <li>Dashboard (all events)</li>
+            <li>Event workspace
+              <ul><li>Setup &amp; page editor</li><li>Guests &amp; RSVP &amp; groups</li><li><b>Money:</b> contribution ledger · budget · receipts</li><li>Vendors &amp; balances</li><li>Checklist &amp; timeline</li><li>Reminders &amp; messages (WhatsApp/SMS)</li><li>Tickets &amp; check-in</li><li>AI assistant</li><li>Memories</li></ul>
+            </li>
+            <li>Team &amp; roles (owner / admin / finance / guest-manager / check-in / viewer)</li>
+            <li>Templates library</li>
+            <li>Account, billing &amp; privacy settings</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- DB -->
+    <div class="acc" data-acc="db">
+      <h2 class="section-h">Recommended database entities</h2>
+      <p class="lead-sm">Core relational model (PostgreSQL). Money is modelled as an auditable ledger, not a single balance field.</p>
+      <div class="grid grid-2 db-grid">
+        <div class="entity"><h5>User</h5><p>id, name, phone (primary in GH), email, password/OTP, locale, created_at</p></div>
+        <div class="entity"><h5>Organization</h5><p>id, name, type (planner/church/school/club), owner_id, plan</p></div>
+        <div class="entity"><h5>Event</h5><p>id, org_id, type, title, slug, date(s), venue, geo, dress_code, privacy, status, template_id</p></div>
+        <div class="entity"><h5>EventMember (roles)</h5><p>id, event_id, user_id, role, permissions, invited_by</p></div>
+        <div class="entity"><h5>Guest</h5><p>id, event_id, name, phone, group, plus_ones, dietary/notes, source</p></div>
+        <div class="entity"><h5>Rsvp</h5><p>id, guest_id, status, party_size, responded_at, message</p></div>
+        <div class="entity hero-feat"><h5>Contributor ⭐</h5><p>id, event_id, name, phone, type (committee/family/guest/diaspora), pledge_amount, channel</p></div>
+        <div class="entity hero-feat"><h5>LedgerEntry ⭐</h5><p>id, event_id, direction (in/out), contributor_id?, vendor_id?, amount, method (MoMo/cash/card/bank), reference, status, recorded_by, receipt_id, created_at</p></div>
+        <div class="entity"><h5>Vendor</h5><p>id, event_id, marketplace_vendor_id?, category, name, contact, quote, deposit, balance, due_date, files</p></div>
+        <div class="entity"><h5>MarketplaceVendor (later)</h5><p>id, business, category, city, verified, rating, portfolio, packages, availability</p></div>
+        <div class="entity"><h5>BudgetItem</h5><p>id, event_id, category, estimated, actual, vendor_id?</p></div>
+        <div class="entity"><h5>ChecklistItem</h5><p>id, event_id, title, due_date, done, assignee_id</p></div>
+        <div class="entity"><h5>Ticket / TicketTier (later)</h5><p>id, event_id, tier, price, qty, qr_code, holder, checked_in_at</p></div>
+        <div class="entity"><h5>Message</h5><p>id, event_id, channel (WA/SMS/email), template, audience, sent_at, status</p></div>
+        <div class="entity"><h5>Receipt</h5><p>id, ledger_entry_id, number, pdf_url, issued_at</p></div>
+        <div class="entity"><h5>MediaAsset</h5><p>id, event_id, type, url, uploaded_by, consent_flag</p></div>
+        <div class="entity"><h5>AuditLog / Consent</h5><p>id, actor, action, entity, timestamp; consent records for phone/photo/data use</p></div>
+      </div>
+    </div>
+
+    <!-- STACK -->
+    <div class="acc" data-acc="stack">
+      <h2 class="section-h">Suggested technology stack</h2>
+      <p class="lead-sm">Chosen for low-data performance, fast iteration, a small team, and Ghana realities (weak networks, MoMo, WhatsApp). Pragmatic over trendy.</p>
+      <div class="grid grid-2">
+        <div class="stack-card"><h4>Frontend</h4><p><b>Next.js (React) as a PWA.</b> Server-rendered, fast event pages that work on 3G; installable without an app store. Tailwind for speed. Offline-friendly check-in via service workers + IndexedDB.</p></div>
+        <div class="stack-card"><h4>Backend</h4><p><b>Node (NestJS) or Django.</b> REST + webhooks. Background jobs (BullMQ/Celery) for reminders &amp; payment reconciliation. Postgres as source of truth.</p></div>
+        <div class="stack-card"><h4>Database &amp; infra</h4><p><b>PostgreSQL</b> (Supabase/Neon to start), <b>Redis</b> for queues/cache, object storage (S3/Cloudflare R2) for media. Cloudflare CDN — critical for low-data speed across Ghana.</p></div>
+        <div class="stack-card"><h4>Payments</h4><p><b>Paystack</b> and/or <b>Hubtel</b> for MTN MoMo, Telecel Cash, AT Money, cards &amp; bank. USSD fallback for low-end phones. Start with manual marking, add live collection in Phase 2.</p></div>
+        <div class="stack-card"><h4>Messaging</h4><p><b>WhatsApp Business / Cloud API</b> (via Twilio/Meta) for invites, reminders, receipts; local <b>SMS</b> aggregator (Hubtel/Mnotify) fallback; email via Resend/SES.</p></div>
+        <div class="stack-card"><h4>AI</h4><p><b>LLM via API (Claude)</b> for drafting &amp; planning, plus deterministic rules for risk detection (headcount vs budget, balances, deadlines). Keep AI grounded in event data; never invent numbers.</p></div>
+      </div>
+      <p class="muted small">This very prototype is intentionally a single, dependency-free static site — proof that the guest surface can be tiny and instant. Production keeps that low-data spirit.</p>
+    </div>
+
+    <!-- AI -->
+    <div class="acc" data-acc="ai">
+      <h2 class="section-h">AI assistant capabilities</h2>
+      <div class="grid grid-2">
+        <div class="card"><div class="ico">🗓️</div><h4>Planning timeline</h4><p>Back-plans tasks from the event date with Ghana lead-times (e.g. caterers &amp; popular venues book months out).</p></div>
+        <div class="card"><div class="ico">💰</div><h4>Realistic budget</h4><p>Builds a budget from guest count, event type and city, using sensible Ghana ranges; shows estimated vs actual.</p></div>
+        <div class="card"><div class="ico">✍️</div><h4>Invitations &amp; reminders</h4><p>Drafts warm, respectful, Ghana-appropriate wording for invites, RSVP nudges and contribution reminders in English (and local-language tone).</p></div>
+        <div class="card"><div class="ico">❓</div><h4>Vendor questions</h4><p>Generates the right questions per vendor type (caterer, photographer, venue) so first-time hosts don't get caught out.</p></div>
+        <div class="card hero-feat"><div class="ico">⚠️</div><h4>Risk detection ⭐</h4><p>Flags: more guests than the food budget covers; unpaid vendor balances vs cash on hand; unfulfilled pledges; missing venue/map; reminders sent too late. Grounded in the real ledger &amp; RSVP data.</p></div>
+        <div class="card"><div class="ico">📋</div><h4>Status summary</h4><p>One-tap "where are we?" for the host or committee: money, guests, vendors, what needs attention this week.</p></div>
+        <div class="card"><div class="ico">🪑</div><h4>Seating &amp; grouping (later)</h4><p>Suggests table groupings from guest groups &amp; notes.</p></div>
+        <div class="card"><div class="ico">🛡️</div><h4>Guardrails</h4><p>Never fabricates amounts; cites the data it used; defers to the human for final money decisions; respects privacy of guest data.</p></div>
+      </div>
+    </div>
+
+    <!-- INTEGRATIONS -->
+    <div class="acc" data-acc="integrations">
+      <h2 class="section-h">Payment &amp; communication integration plan</h2>
+      <div class="grid grid-2">
+        <div class="phase-card"><h4>💸 Payments — phased</h4>
+          <p><b>Phase 1 (MVP):</b> manual marking. Host/finance admin records each MoMo/cash payment; ledger reconciles; receipts &amp; reminders generated. Zero integration risk, instantly useful.</p>
+          <p><b>Phase 2:</b> live collection via <b>Paystack/Hubtel</b> — MTN MoMo, Telecel Cash, AT Money, cards, bank transfer. Auto-match incoming payments to contributors via reference codes. Payout to host wallet/bank.</p>
+          <p><b>Phase 3:</b> USSD contribution flow (dial-a-code) for guests with no data; split-payment links; vendor deposit collection; (later) escrow.</p>
+        </div>
+        <div class="phase-card"><h4>💬 Communication — phased</h4>
+          <p><b>Phase 1:</b> share-to-WhatsApp links + pre-filled messages; click-to-send SMS/email; copyable invite text. No API cost to start.</p>
+          <p><b>Phase 2:</b> <b>WhatsApp Business API</b> templates for invites, reminders, receipts &amp; status; bulk SMS via local aggregator; delivery tracking.</p>
+          <p><b>Phase 3:</b> two-way RSVP over WhatsApp (reply "YES 2"); automated reminder schedules; segmented blasts by guest group.</p>
+        </div>
+      </div>
+      <p class="muted small">Monetisation hooks live here: SMS/WhatsApp bundles, payment-processing fees, vendor lead fees.</p>
+    </div>
+
+    <!-- PRIVACY -->
+    <div class="acc" data-acc="privacy">
+      <h2 class="section-h">Privacy &amp; security checklist</h2>
+      <p class="lead-sm">Designed with Ghana's Data Protection Act (2012) expectations in mind. Privacy is a feature, because we hold phone numbers, money and photos.</p>
+      <div class="grid grid-2 check-grid">
+        <ul class="checklist"><li>Guest lists private by default — never public unless host opts in</li><li>Role-based access (owner/admin/finance/guest-manager/check-in/viewer)</li><li>Consent capture for phone numbers, photos &amp; contact import</li><li>Self-service data deletion &amp; export for hosts and guests</li><li>Encryption in transit (TLS) and at rest for PII &amp; payment refs</li></ul>
+        <ul class="checklist"><li>OTP / phone-based auth; optional 2FA for finance roles</li><li>Full audit log on every money entry (who recorded what, when)</li><li>No card/MoMo PINs stored — tokenised via the payment provider</li><li>Minimise data: collect only what the event needs</li><li>Clear cancellation/refund rules &amp; receipts; dispute trail</li><li>Photo galleries respect consent; takedown on request</li><li>Vendor verification &amp; anti-fraud checks on the roadmap</li></ul>
+      </div>
+    </div>
+
+    <!-- VENDOR ROADMAP -->
+    <div class="acc" data-acc="vendor">
+      <h2 class="section-h">Vendor marketplace roadmap</h2>
+      <div class="timeline">
+        <div class="tl"><span class="tl-dot"></span><h4>Stage 0 — MVP: private vendor tracking</h4><p>Hosts add their own vendors (contact, quote, deposit, balance, due date, files). No marketplace yet — but we're quietly building the category/city/price dataset.</p></div>
+        <div class="tl"><span class="tl-dot"></span><h4>Stage 1 — Directory</h4><p>Browse vendors by city &amp; category (photographer, caterer, decorator, MC, DJ, makeup, venue, security, rentals, transport). Inquiry forms. We charge <b>lead fees / featured listings</b>.</p></div>
+        <div class="tl"><span class="tl-dot"></span><h4>Stage 2 — Profiles &amp; trust</h4><p>Portfolios, packages, availability, <b>verification badges</b>, ratings &amp; reviews tied to real bookings. This directly attacks the vendor-trust pain point.</p></div>
+        <div class="tl"><span class="tl-dot"></span><h4>Stage 3 — In-app booking &amp; payments</h4><p>Quote → book → deposit via MoMo → balance reminders → receipt — all in Durbar. Take a small booking/processing fee.</p></div>
+        <div class="tl"><span class="tl-dot"></span><h4>Stage 4 — Escrow &amp; guarantees</h4><p>Hold deposits, release on milestones, dispute resolution. The strongest anti-fraud trust layer — and a serious moat. (Regulatory work required.)</p></div>
+      </div>
+    </div>
+
+    <!-- EXPANSION -->
+    <div class="acc" data-acc="expansion">
+      <h2 class="section-h">Sports &amp; social-group expansion roadmap</h2>
+      <div class="grid grid-2">
+        <div class="phase-card"><h4>🏆 Sports tournaments module</h4><ul><li>Team &amp; player registration (with payments)</li><li>Fixtures &amp; match schedules</li><li>Results, standings &amp; brackets</li><li>Player lists &amp; eligibility</li><li>Gate tickets + check-in reuse the core engine</li></ul><p class="muted small">Why later: needs the events + payments + check-in core to be rock-solid first.</p></div>
+        <div class="phase-card"><h4>👥 Groups / social clubs module</h4><ul><li>Recurring events &amp; calendars</li><li><b>Dues</b> cycles (reuse the ledger!) with reminders</li><li>Polls &amp; announcements</li><li>Attendance tracking</li><li>Member roles &amp; directory</li></ul><p class="muted small">The contribution ledger is the bridge: club dues are just recurring committee contributions.</p></div>
+      </div>
+      <div class="callout"><p><strong>Sequencing logic:</strong> every expansion reuses MVP primitives — events, guests/members, the ledger, reminders, check-in. We never rebuild; we extend. That's how we add modules gradually instead of launching everything at once.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section class="view" id="roadmap" data-view="roadmap">
+  <div class="wrap">
+    <span class="eyebrow">Deliverable · Execution</span>
+    <h1 class="big">Roadmaps, metrics &amp; risks</h1>
+
+    <h2 class="section-h">90-day MVP build roadmap</h2>
+    <div class="sprints">
+      <div class="sprint"><h4>Days 0–15 · Foundations</h4><ul><li>Repo, auth (phone OTP), data model, design system</li><li>Event creation + 3 templates (white wedding, traditional, birthday)</li><li>Public event page (low-data) live</li></ul></div>
+      <div class="sprint"><h4>Days 16–35 · Guests &amp; RSVP</h4><ul><li>Guest list, groups, CSV import</li><li>RSVP flow (no-login) + share-to-WhatsApp</li><li>Pending-RSVP reminders (manual send)</li></ul></div>
+      <div class="sprint hero-feat"><h4>Days 36–60 · The wedge ⭐</h4><ul><li>Contribution &amp; committee ledger (pledges, payments, multi-source)</li><li>Vendor tracking + balances + budget</li><li>Receipts; manual payment marking; reconciliation views</li></ul></div>
+      <div class="sprint"><h4>Days 61–75 · AI + Studio</h4><ul><li>AI: budget, timeline, drafting, risk alerts, status summary</li><li>Organizer Studio dashboard + roles/permissions</li></ul></div>
+      <div class="sprint"><h4>Days 76–90 · Polish &amp; pilot</h4><ul><li>Memories (album, thank-you), privacy/consent, audit log</li><li>Onboard 10–20 real weddings/funerals as design partners</li><li>Instrument metrics; iterate from pilot feedback</li></ul></div>
+    </div>
+    <p class="muted small">Team assumption: 1 product/design, 2 full-stack engineers, plus you. Ticketing/check-in is built on the same engine in month 4, not the MVP.</p>
+
+    <h2 class="section-h">12-month product roadmap</h2>
+    <div class="quarters">
+      <div class="q"><span class="q-tag">Q1</span><h4>Win weddings &amp; funerals</h4><p>Ship MVP. 50+ real events. Nail the ledger + RSVP + AI loop. Free tier + premium templates &amp; SMS bundles live.</p></div>
+      <div class="q"><span class="q-tag">Q2</span><h4>Payments &amp; tickets</h4><p>Live MoMo collection (Paystack/Hubtel). Ticketing + QR check-in (offline-friendly). Payment-processing fees begin.</p></div>
+      <div class="q"><span class="q-tag">Q3</span><h4>Vendor marketplace v1</h4><p>Directory + profiles + reviews + verification badges. Lead fees &amp; featured listings. Planner subscriptions.</p></div>
+      <div class="q"><span class="q-tag">Q4</span><h4>Groups, sports &amp; orgs</h4><p>Recurring dues/groups, sports module, church/school packages. Begin diaspora contribution flows.</p></div>
+    </div>
+
+    <h2 class="section-h">Key metrics to track</h2>
+    <div class="grid grid-3 metric-grid">
+      <div class="metric"><b>Activation</b><p>% of created events that publish a page <em>and</em> add ≥10 guests</p></div>
+      <div class="metric"><b>The wedge metric ⭐</b><p>GMV reconciled through the ledger / event; % of events using contributions</p></div>
+      <div class="metric"><b>RSVP conversion</b><p>RSVPs ÷ invites; time-to-first-RSVP</p></div>
+      <div class="metric"><b>Pledge fulfilment</b><p>Collected ÷ pledged; lift from reminders</p></div>
+      <div class="metric"><b>Retention</b><p>% of hosts who run a 2nd event; committees reused</p></div>
+      <div class="metric"><b>Vendor leads</b><p>Inquiries &amp; bookings sent to vendors (later)</p></div>
+      <div class="metric"><b>Guest virality</b><p>New hosts referred by guests who attended</p></div>
+      <div class="metric"><b>Revenue</b><p>Premium, SMS/WhatsApp bundles, fees, subscriptions</p></div>
+      <div class="metric"><b>Reliability</b><p>Event-page load time on 3G; uptime; reminder delivery rate</p></div>
+    </div>
+
+    <h2 class="section-h">Risks &amp; how we reduce them</h2>
+    <div class="risks">
+      <div class="risk"><h4>⚠️ "Just use WhatsApp" inertia</h4><p><b>Reduce:</b> be WhatsApp-native, not a replacement. The only thing we ask people to leave WhatsApp for is the money truth they can't get there.</p></div>
+      <div class="risk"><h4>⚠️ Payment trust &amp; fraud</h4><p><b>Reduce:</b> audit log on every entry, receipts, role-based finance access, manual-first then licensed aggregators, escrow later.</p></div>
+      <div class="risk"><h4>⚠️ Low-data / weak networks</h4><p><b>Reduce:</b> tiny pages, offline check-in, USSD/SMS fallbacks, CDN. Performance is a feature.</p></div>
+      <div class="risk"><h4>⚠️ Seasonality &amp; one-off use</h4><p><b>Reduce:</b> families have many events; capture the committee &amp; guest data so the next event starts here. Push recurring groups/dues for steady usage.</p></div>
+      <div class="risk"><h4>⚠️ Overbuilding</h4><p><b>Reduce:</b> the postpone list is enforced. Win weddings/funerals before anything else.</p></div>
+      <div class="risk"><h4>⚠️ Monetising too early</h4><p><b>Reduce:</b> free basic pages; charge where value is obvious (SMS bundles, fees, vendor leads, planner/org plans), never tax ordinary hosts upfront.</p></div>
+      <div class="risk"><h4>⚠️ Privacy mishandling</h4><p><b>Reduce:</b> consent, deletion, minimisation, RBAC, Data Protection Act alignment from day one.</p></div>
+      <div class="risk"><h4>⚠️ Incumbents add MoMo</h4><p><b>Reduce:</b> our moat isn't payments — it's the committee ledger + Ghana event graph + vendor trust, which they can't quickly replicate.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PITCH ============ -->
+<section class="view" id="pitch" data-view="pitch">
+  <div class="wrap">
+    <span class="eyebrow">Deliverable · Go-to-market &amp; fundraising</span>
+    <h1 class="big">Landing copy &amp; pitch deck</h1>
+
+    <h2 class="section-h">Suggested landing page copy</h2>
+    <div class="landing">
+      <div class="landing-block">
+        <p class="lp-eyebrow">HERO</p>
+        <h3>Stop planning your event in five WhatsApp groups.</h3>
+        <p class="lp-sub">Durbar is Ghana's all-in-one event command center. Build a beautiful event page, invite by WhatsApp, collect MoMo, track every pledge and vendor cedi, and run the day — all in one place.</p>
+        <p class="lp-cta">[ Create your free event ] &nbsp; [ See how it works ]</p>
+      </div>
+      <div class="landing-block">
+        <p class="lp-eyebrow">VALUE — 3 PROMISES</p>
+        <ul class="lp-three"><li><b>Know your money.</b> One ledger for pledges, MoMo, cash &amp; vendor balances — visible to your whole committee.</li><li><b>Know your guests.</b> WhatsApp RSVP with no app download, so you finally have a real headcount.</li><li><b>Know what's next.</b> An AI that builds your budget, drafts your messages and warns you before things go wrong.</li></ul>
+      </div>
+      <div class="landing-block">
+        <p class="lp-eyebrow">SOCIAL PROOF / NICHE</p>
+        <h4>Made for Ghanaian weddings, traditional ceremonies, funerals &amp; family events.</h4>
+        <p>Templates for white wedding, traditional marriage, engagement, naming, birthday, funeral/memorial, church, school &amp; more. MoMo-first. Loads fast even on a weak network.</p>
+      </div>
+      <div class="landing-block">
+        <p class="lp-eyebrow">CLOSER</p>
+        <h4>Your next event starts here — free.</h4>
+        <p>Basic event pages are free forever. Pay only for what clearly saves you stress: SMS/WhatsApp bundles, premium templates, and tools for planners &amp; organisations.</p>
+        <p class="lp-cta">[ Create your free event ]</p>
+      </div>
+    </div>
+
+    <h2 class="section-h">Suggested app / dashboard screens</h2>
+    <div class="grid grid-3 screens-grid">
+      <div class="scr">Guest event page</div><div class="scr">RSVP (no-login)</div><div class="scr hero-feat">Contribution ledger ⭐</div>
+      <div class="scr">Add / record payment</div><div class="scr">Budget vs actual</div><div class="scr">Vendor &amp; balances</div>
+      <div class="scr">AI assistant chat</div><div class="scr">AI risk alerts</div><div class="scr">Studio dashboard</div>
+      <div class="scr">Guest analytics</div><div class="scr">Checklist &amp; timeline</div><div class="scr">Reminders / messages</div>
+      <div class="scr">Roles &amp; permissions</div><div class="scr">Tickets &amp; tiers (later)</div><div class="scr">QR check-in (offline)</div>
+      <div class="scr">Templates library</div><div class="scr">Memories / album</div><div class="scr">Receipts &amp; export</div>
+    </div>
+
+    <h2 class="section-h">Pitch deck outline</h2>
+    <div class="deck">
+      <div class="slide"><span class="sl-n">1</span><h4>Title</h4><p>Durbar — Ghana's all-in-one event command center. One line, one logo, the ask.</p></div>
+      <div class="slide"><span class="sl-n">2</span><h4>Problem</h4><p>Ghanaian events are run by committees across WhatsApp, spreadsheets &amp; MoMo. Nobody can reconcile the money or the guests. Families overspend &amp; argue.</p></div>
+      <div class="slide"><span class="sl-n">3</span><h4>Why now</h4><p>MoMo is ubiquitous; WhatsApp is the default; weddings/funerals are huge spend; no incumbent owns the committee-money problem.</p></div>
+      <div class="slide"><span class="sl-n">4</span><h4>Solution</h4><p>The contribution &amp; committee ledger + event page + WhatsApp RSVP + AI — demoed live.</p></div>
+      <div class="slide"><span class="sl-n">5</span><h4>Product demo</h4><p>This clickable prototype: event page → RSVP → ledger → AI → Studio.</p></div>
+      <div class="slide"><span class="sl-n">6</span><h4>Wedge → platform</h4><p>Own weddings/funerals, then tickets, vendors, sports, groups. Each reuses the core.</p></div>
+      <div class="slide"><span class="sl-n">7</span><h4>Market</h4><p>Ghana events TAM (weddings, funerals, parties, church/school), then West Africa &amp; diaspora.</p></div>
+      <div class="slide"><span class="sl-n">8</span><h4>Business model</h4><p>Free pages; premium templates; SMS/WhatsApp bundles; payment/ticket fees; vendor leads &amp; featured listings; planner &amp; org subscriptions.</p></div>
+      <div class="slide"><span class="sl-n">9</span><h4>Competition</h4><p>Eventbrite/WithJoy/Luma (not Ghana-native); Tix/eGotickets (ticketing only). None do the committee ledger.</p></div>
+      <div class="slide"><span class="sl-n">10</span><h4>Moat</h4><p>Ghana event graph (guests, committees, vendors) + money trust + WhatsApp/MoMo-native UX.</p></div>
+      <div class="slide"><span class="sl-n">11</span><h4>Traction / plan</h4><p>90-day MVP, design-partner weddings &amp; funerals, the metrics we'll prove.</p></div>
+      <div class="slide"><span class="sl-n">12</span><h4>Team</h4><p>Founder + product/eng. Why us, local insight, advisors.</p></div>
+      <div class="slide"><span class="sl-n">13</span><h4>The ask</h4><p>Raise / partnership to fund the MVP + pilot, with milestones to the next round.</p></div>
+    </div>
+
+    <div class="closing">
+      <h2>Build one category brilliantly. Then become the platform.</h2>
+      <p>Durbar earns the right to do everything by first doing one thing no one else has: making the money and the people make sense, for the events Ghanaians care about most.</p>
+      <a class="btn btn-gold" href="#product" data-nav="product">Replay the product →</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="kente-bar" aria-hidden="true"></div>
+  <p><b>Durbar</b> · Ghana's event command center — working prototype &amp; strategy brief.</p>
+  <p class="muted small">This is a clickable concept built to be viewed online while in development. Brand name, figures and screens are illustrative. Built low-data on purpose 💚💛❤️</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
