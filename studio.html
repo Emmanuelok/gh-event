@@ -19,6 +19,7 @@
   <div class="right">
     <span class="cloud-chip" id="cloudChip" title="Sign in to sync &amp; share a live link">● Local only</span>
     <span class="save-state saved" id="saveState">All changes saved</span>
+    <button class="kbtn" id="cmdkBtn" title="Search &amp; commands (Ctrl/⌘ K)"><span>⌘</span>K</button>
     <button class="btn btn-sm" id="btnReset">Reset</button>
     <button class="btn btn-sm" id="btnSave">Save</button>
     <button class="btn btn-gold btn-sm" id="btnPublish">🔗 Publish</button>
@@ -34,6 +35,8 @@
     <button class="nav-i" data-tab="dashboard"><span class="ic">📊</span><span class="tx">Dashboard</span></button>
     <button class="nav-i active" data-tab="design"><span class="ic">🎨</span><span class="tx">Design event</span></button>
     <button class="nav-i" data-tab="guests"><span class="ic">👥</span><span class="tx">Guests</span><span class="ct" id="gCount"></span></button>
+    <button class="nav-i" data-tab="invite"><span class="ic">✉️</span><span class="tx">Invite</span></button>
+    <button class="nav-i" data-tab="seating"><span class="ic">🪑</span><span class="tx">Seating</span></button>
     <button class="nav-i" data-tab="money"><span class="ic">💛</span><span class="tx">Money</span></button>
     <div class="grp">Soon</div>
     <button class="nav-i" data-tab="design" title="Reuses the engine"><span class="ic">🎟️</span><span class="tx">Tickets</span></button>
@@ -111,12 +114,30 @@
           </div>
 
           <div class="ed-sec">
+            <div class="ed-head"><span class="ic">✈️</span> Travel &amp; stay <span class="dim small" id="travCount"></span><span class="chev">▾</span></div>
+            <div class="ed-body">
+              <p class="dim small" style="margin:0 0 9px">Hotels, parking, getting there — anything out-of-town guests need.</p>
+              <div id="travList"></div>
+              <button class="add-row" id="travAdd">+ Add travel info</button>
+            </div>
+          </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">❓</span> FAQ <span class="dim small" id="faqCount"></span><span class="chev">▾</span></div>
+            <div class="ed-body">
+              <p class="dim small" style="margin:0 0 9px">Answer the questions guests always ask — kids, dress code, gifts, timing.</p>
+              <div id="faqList"></div>
+              <button class="add-row" id="faqAdd">+ Add question</button>
+            </div>
+          </div>
+
+          <div class="ed-sec">
             <div class="ed-head"><span class="ic">👗</span> Details <span class="chev">▾</span></div>
             <div class="ed-body">
               <div class="fld"><label>Dress code</label><input type="text" id="fDress" data-bind="dressCode" placeholder="e.g. Royal green &amp; gold" /></div>
               <div class="fld"><label>Map / parking note <span class="opt">(optional)</span></label><input type="text" id="fMapNote" data-bind="mapNote" /></div>
               <div class="fld"><label>Google Maps link <span class="opt">(optional — overrides auto)</span></label><input type="text" id="fMapUrl" data-bind="mapUrl" placeholder="https://maps.app.goo.gl/…" /></div>
-              <div class="fld"><label>Title font</label><select id="fFont" data-bind="displayFont"><option value="serif">Elegant serif</option><option value="sans">Modern sans</option></select></div>
+              <div class="fld"><label>Font pairing</label><select id="fFont" data-bind="fontPair"></select></div>
             </div>
           </div>
 
@@ -131,6 +152,32 @@
                 <div class="fld"><label>MoMo number</label><input type="tel" id="fMomo" data-bind="contribution.momo" /></div>
                 <div class="fld"><label>Goal (GHS)</label><input type="number" id="fGoal" data-bind="contribution.goal" /></div>
               </div>
+            </div>
+          </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">📝</span> RSVP questions <span class="dim small" id="qCount"></span><span class="chev">▾</span></div>
+            <div class="ed-body">
+              <p class="dim small" style="margin:0 0 9px">Ask guests for meal choices, dietary needs, song requests — answers land in your Guests list.</p>
+              <div class="q-presets" id="qPresets">
+                <button type="button" class="chiplet" data-qadd="meal">+ Meal choice</button>
+                <button type="button" class="chiplet" data-qadd="diet">+ Dietary needs</button>
+                <button type="button" class="chiplet" data-qadd="song">+ Song request</button>
+                <button type="button" class="chiplet" data-qadd="events">+ Which events?</button>
+              </div>
+              <div id="qList"></div>
+              <button class="add-row" id="qAdd">+ Add a custom question</button>
+            </div>
+          </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">🎁</span> Registry &amp; funds <span class="dim small" id="regCount"></span><span class="chev">▾</span></div>
+            <div class="ed-body">
+              <div class="fld"><label class="toggle"><input type="checkbox" id="fRegOn" data-bind="registry.enabled" /> <span>Show a registry of funds on the page</span></label></div>
+              <div class="fld"><label>Section heading</label><input type="text" id="fRegHeading" data-bind="registry.heading" placeholder="Registry &amp; funds" /></div>
+              <div class="fld"><label>Intro note <span class="opt">(optional)</span></label><input type="text" id="fRegNote" data-bind="registry.note" placeholder="Your presence is the gift — but if you wish to bless us…" /></div>
+              <div id="regList"></div>
+              <button class="add-row" id="regAdd">+ Add a fund</button>
             </div>
           </div>
         </div>
@@ -179,6 +226,12 @@
       </div>
     </section>
 
+    <!-- ============ INVITE ============ -->
+    <section class="tab" data-tab="invite"><div id="inviteRoot"></div></section>
+
+    <!-- ============ SEATING ============ -->
+    <section class="tab" data-tab="seating"><div id="seatRoot"></div></section>
+
     <!-- ============ MONEY ============ -->
     <section class="tab" data-tab="money">
       <div class="tab-h"><h2>💛 Contribution &amp; committee ledger</h2><span class="pill-tip">⭐ The Durbar wedge</span><button class="btn btn-sm" id="mExport" style="margin-left:auto">⬇️ Export CSV</button></div>
@@ -215,6 +268,10 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ⌘K command palette + celebration canvas (harvested craft) -->
+<div class="cmdk" id="cmdk"><div class="cmdk-box"><input id="cmdkInput" placeholder="Search views or run a command…" autocomplete="off" spellcheck="false" /><div class="results" id="cmdkResults"></div></div></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
 
 <!-- account / publish / share modal -->
 <div class="modal" id="authModal">

@@ -82,6 +82,7 @@
   window.__cloud = {
     deleteGuest: async (id) => { if (!eventId) return; try { await api.del('/api/events/' + eventId + '/guests/' + id); rsvps = rsvps.filter((r) => r.id !== id); pushRemote(); toast('Response removed'); } catch (e) {} },
     deleteContribution: async (id) => { if (!eventId) return; try { await api.del('/api/events/' + eventId + '/contributions/' + id); contribs = contribs.filter((c) => c.id !== id); pushRemote(); toast('Contribution removed'); } catch (e) {} },
+    getLink: () => (slug ? location.origin + '/event.html?e=' + slug : ''),
   };
 
   /* ---- modal ---- */
@@ -160,6 +161,7 @@
     } catch (e) { open('<h3>Could not publish</h3><p class="lead">' + escapeHtml(e.message || 'Please try again.') + '</p>'); }
   }
   function shareSheet() {
+    if (window.__studio && window.__studio.confetti) window.__studio.confetti();
     const link = location.origin + '/event.html?e=' + slug;
     open(`<h3>🎉 Your event is live</h3>
       <p class="lead">Share this link on WhatsApp, SMS or anywhere. Guests open it, RSVP and contribute — no app, no login.</p>

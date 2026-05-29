@@ -21,12 +21,19 @@
   let state = null;   // local mode: full studio state
   let ev = null;      // the event design (both modes)
   let collected = 0;
+  let fundTotals = {};
   let payEnabled = false;
 
   const getCollected = () => mode === 'server' ? collected : (state.contributors || []).reduce((a, c) => a + (+c.paid || 0), 0);
+  const computeFundTotals = () => {
+    if (mode === 'server') return fundTotals;
+    const ft = {};
+    (state.contributors || []).forEach((c) => { if (c.fund) ft[c.fund] = (ft[c.fund] || 0) + (+c.paid || 0); });
+    return ft;
+  };
   function render() {
-    D.applyTheme(page, ev.theme);
-    page.innerHTML = D.renderEventPage(ev, { collected: getCollected(), mode: 'guest' });
+    D.applyTheme(page, ev.theme, ev.fontPair);
+    page.innerHTML = D.renderEventPage(ev, { collected: getCollected(), fundTotals: computeFundTotals(), mode: 'guest' });
   }
   const saveLocal = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
 
@@ -34,7 +41,7 @@
     if (mode === 'server') {
       setServerBanner();
       api.getPublic(SLUG).then((res) => {
-        ev = res.event || {}; ev.gallery = ev.gallery || []; collected = res.collected || 0; payEnabled = !!res.paystack;
+        ev = res.event || {}; ev.gallery = ev.gallery || []; collected = res.collected || 0; fundTotals = res.fundTotals || {}; payEnabled = !!res.paystack;
         render();
         if (new URLSearchParams(location.search).get('paid')) afterPaid();
       }).catch((e) => {
@@ -55,7 +62,7 @@
     }
   }
   function afterPaid() {
-    api.getPublic(SLUG).then((r) => { collected = r.collected || collected; render(); }).catch(() => {});
+    api.getPublic(SLUG).then((r) => { collected = r.collected || collected; fundTotals = r.fundTotals || fundTotals; render(); }).catch(() => {});
     open(`<div class="done"><div class="big">🎉</div><h3>Thank you!</h3><p>Your payment is being confirmed — the host will see it shortly.</p></div>`);
     setTimeout(close, 3200);
   }
@@ -66,9 +73,12 @@
   }
 
   page.addEventListener('click', (e) => {
+    const nav = e.target.closest('.ev-nav a[href^="#ev-"]');
+    if (nav) { e.preventDefault(); const t = page.querySelector(nav.getAttribute('href')); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
     const a = e.target.closest('[data-action]'); if (!a) return;
     if (a.dataset.action === 'rsvp') openRsvp();
     else if (a.dataset.action === 'contribute') openContribute();
+    else if (a.dataset.action === 'gift') openContribute(a.dataset.fund);
   });
 
   /* ---- modal ---- */
@@ -80,25 +90,59 @@
   const showErr = (id, msg) => { const er = $(id); er.textContent = msg; er.style.display = 'block'; };
 
   /* ---- RSVP ---- */
+  function summarizeAnswers(answers, questions, partyNames) {
+    const parts = [];
+    (questions || []).forEach((q) => { const v = answers[q.id]; if (v && (Array.isArray(v) ? v.length : true)) parts.push(q.label + ': ' + (Array.isArray(v) ? v.join(', ') : v)); });
+    if (partyNames && partyNames.length) parts.push('with ' + partyNames.join(', '));
+    return parts.join(' · ');
+  }
   function openRsvp() {
     let status = 'yes', party = ev.allowPlusOnes ? 2 : 1;
+    const questions = ev.questions || [];
     open(`<h3>RSVP — ${esc(ev.title)}</h3>
       <p class="lead">Takes 20 seconds. No account needed.</p>
       <label>Your name</label><input id="rName" placeholder="e.g. Akosua Mensah" />
       <label>Will you join us?</label>
       <div class="seg" id="rSeg"><button class="on" data-v="yes">Yes 🎉</button><button data-v="maybe">Maybe</button><button data-v="no">Can't make it</button></div>
       ${ev.allowPlusOnes ? `<label>How many in your party?</label><div class="step" id="rStep"><button data-s="-1">−</button><span id="rParty">${party}</span><button data-s="1">+</button></div>` : ''}
+      <div id="rPartyNames"></div>
+      <div id="rQuestions"></div>
       <label>Phone <span style="text-transform:none;font-weight:500">(so the host can reach you)</span></label><input id="rPhone" placeholder="024…" />
       <label>Note <span style="text-transform:none;font-weight:500">(optional)</span></label><input id="rNote" placeholder="Congratulations! 💍" />
       <div class="err" id="rErr" style="display:none"></div>
       <button class="go" id="rGo">Send RSVP</button>`);
+    const renderPartyNames = () => {
+      const box = $('#rPartyNames'); if (!box) return;
+      if (status === 'yes' && ev.allowPlusOnes && party > 1) {
+        let h = '<label>Names of your guests <span style="text-transform:none;font-weight:500">(optional)</span></label>';
+        for (let i = 1; i < party; i++) h += `<input class="rpn" placeholder="Guest ${i + 1} name" />`;
+        box.innerHTML = h;
+      } else box.innerHTML = '';
+    };
+    const renderQuestions = () => {
+      const box = $('#rQuestions'); if (!box) return;
+      if (status !== 'yes' || !questions.length) { box.innerHTML = ''; return; }
+      box.innerHTML = questions.map((q) => {
+        if (q.type === 'choice') return `<label>${esc(q.label)}</label><div class="seg qseg" data-q="${esc(q.id)}">${(q.options || []).map((o, oi) => `<button type="button" class="${oi === 0 ? 'on' : ''}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+        if (q.type === 'multi') return `<label>${esc(q.label)}</label><div class="qmulti" data-q="${esc(q.id)}">${(q.options || []).map((o) => `<label class="qchk"><input type="checkbox" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>`;
+        return `<label>${esc(q.label)}</label><input class="qshort" data-q="${esc(q.id)}" placeholder="Your answer" />`;
+      }).join('');
+      box.querySelectorAll('.qseg').forEach((seg) => seg.addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; Array.from(seg.children).forEach((x) => x.classList.toggle('on', x === b)); }));
+    };
     const seg = $('#rSeg');
-    seg.addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; status = b.dataset.v; Array.from(seg.children).forEach((x) => x.classList.toggle('on', x === b)); });
+    seg.addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; status = b.dataset.v; Array.from(seg.children).forEach((x) => x.classList.toggle('on', x === b)); renderPartyNames(); renderQuestions(); });
     const stp = $('#rStep');
-    if (stp) stp.addEventListener('click', (e) => { const b = e.target.closest('[data-s]'); if (!b) return; party = Math.max(1, Math.min(20, party + (+b.dataset.s))); $('#rParty').textContent = party; });
+    if (stp) stp.addEventListener('click', (e) => { const b = e.target.closest('[data-s]'); if (!b) return; party = Math.max(1, Math.min(20, party + (+b.dataset.s))); $('#rParty').textContent = party; renderPartyNames(); });
     $('#rGo').addEventListener('click', () => {
       const name = $('#rName').value.trim(); if (!name) { $('#rName').focus(); return; }
-      const payload = { name, phone: $('#rPhone').value.trim(), status, party: status === 'yes' ? party : 0, note: $('#rNote').value.trim() };
+      const answers = {};
+      if (status === 'yes') questions.forEach((q) => {
+        if (q.type === 'choice') { const sel = document.querySelector(`#rQuestions .qseg[data-q="${q.id}"] .on`); if (sel) answers[q.id] = sel.dataset.v; }
+        else if (q.type === 'multi') { const vals = Array.from(document.querySelectorAll(`#rQuestions .qmulti[data-q="${q.id}"] input:checked`)).map((x) => x.value); if (vals.length) answers[q.id] = vals; }
+        else { const inp = document.querySelector(`#rQuestions .qshort[data-q="${q.id}"]`); if (inp && inp.value.trim()) answers[q.id] = inp.value.trim(); }
+      });
+      const partyNames = Array.from(document.querySelectorAll('#rPartyNames .rpn')).map((x) => x.value.trim()).filter(Boolean);
+      const payload = { name, phone: $('#rPhone').value.trim(), status, party: status === 'yes' ? party : 0, note: $('#rNote').value.trim(), answers, partyNames };
       const done = () => {
         open(`<div class="done"><div class="big">✅</div><h3>Thank you, ${esc(name.split(' ')[0])}!</h3><p>Your RSVP is in${status === 'yes' ? ` for ${payload.party}` : ''}. ${status === 'yes' ? 'The host will be in touch before the day.' : 'We\'ll miss you!'}</p></div>`);
         setTimeout(close, 2600);
@@ -107,31 +151,35 @@
         $('#rGo').disabled = true;
         api.rsvp(SLUG, payload).then(done).catch((e) => { showErr('#rErr', e.message || 'Could not send — try again'); $('#rGo').disabled = false; });
       } else {
-        state.guests.push({ id: gid(), name, phone: payload.phone, group: 'Guest (RSVP)', status, party: payload.party, note: payload.note, source: 'rsvp' });
+        const sum = summarizeAnswers(answers, questions, partyNames);
+        state.guests.push({ id: gid(), name, phone: payload.phone, group: 'Guest (RSVP)', status, party: payload.party, note: [payload.note, sum].filter(Boolean).join(' · '), source: 'rsvp' });
         saveLocal(); done();
       }
     });
+    renderPartyNames(); renderQuestions();
     $('#rName').focus();
   }
 
   /* ---- Contribute ---- */
-  function openContribute() {
+  function openContribute(fundId) {
     const c = ev.contribution || {};
-    open(`<h3>💛 ${esc(c.label || 'Contribute via MoMo')}</h3>
-      <p class="lead">${payEnabled ? 'Pay securely online, or send Mobile Money to the host and confirm below.' : 'Send Mobile Money to the host, then confirm here so it\'s tracked.'}</p>
+    const fund = fundId ? (((ev.registry && ev.registry.funds) || []).find((f) => f.id === fundId)) : null;
+    const fundLabel = fund ? fund.title : '';
+    open(`<h3>${fund ? '🎁 ' + esc(fund.title) : '💛 ' + esc(c.label || 'Contribute via MoMo')}</h3>
+      <p class="lead">${fund && fund.desc ? esc(fund.desc) + ' ' : ''}${payEnabled ? 'Pay securely online, or send Mobile Money to the host and confirm below.' : 'Send Mobile Money to the host, then confirm here so it\'s tracked.'}</p>
       <label>Your name</label><input id="dName" placeholder="e.g. Uncle Yaw" />
       <label>Amount (GHS)</label><input id="dAmt" type="number" placeholder="200" />
       ${payEnabled ? '<label>Email <span style="text-transform:none;font-weight:500">(for your receipt)</span></label><input id="dEmail" type="email" placeholder="you@example.com" />' : ''}
       <div class="err" id="dErr" style="display:none"></div>
       ${payEnabled ? '<button class="go" id="dPay">Pay online (MoMo / card)</button>' : ''}
-      <div class="momo-box">${payEnabled ? 'Or send' : 'Send'} Mobile Money to <b>${esc(c.momo || '024 000 0000')}</b><br><span class="dim small">${esc(ev.title)} · MTN / Telecel / AT MoMo</span></div>
+      <div class="momo-box">${payEnabled ? 'Or send' : 'Send'} Mobile Money to <b>${esc(c.momo || '024 000 0000')}</b><br><span class="dim small">${esc(ev.title)}${fundLabel ? ' · ' + esc(fundLabel) : ''} · MTN / Telecel / AT MoMo</span></div>
       <button class="go gold" id="dGo">I've sent it manually ✓</button>`);
     if (payEnabled) $('#dPay').addEventListener('click', () => {
       const name = $('#dName').value.trim(); const amt = +$('#dAmt').value || 0;
       if (!name) { $('#dName').focus(); return; }
       if (amt <= 0) { $('#dAmt').focus(); return; }
       $('#dPay').disabled = true;
-      api.payInit(SLUG, { name, email: ($('#dEmail') && $('#dEmail').value.trim()) || '', amount: amt })
+      api.payInit(SLUG, { name, email: ($('#dEmail') && $('#dEmail').value.trim()) || '', amount: amt, fund: fundId || '' })
         .then((r) => { if (r.authorization_url) window.location.href = r.authorization_url; else $('#dGo').click(); })
         .catch((e) => { showErr('#dErr', e.message || 'Could not start payment'); $('#dPay').disabled = false; });
     });
@@ -141,14 +189,14 @@
       if (amt <= 0) { $('#dAmt').focus(); return; }
       const done = () => {
         render();
-        open(`<div class="done"><div class="big">🎉</div><h3>Medaase, ${esc(name.split(' ')[0])}!</h3><p>Your ${ghs(amt)} gift is recorded. A receipt would be sent by SMS in the live product.</p></div>`);
+        open(`<div class="done"><div class="big">🎉</div><h3>Medaase, ${esc(name.split(' ')[0])}!</h3><p>Your ${ghs(amt)} gift${fundLabel ? ' to <b>' + esc(fundLabel) + '</b>' : ''} is recorded. A receipt would be sent by SMS in the live product.</p></div>`);
         setTimeout(close, 2800);
       };
       if (mode === 'server') {
         $('#dGo').disabled = true;
-        api.contribute(SLUG, { name, amount: amt, method: 'momo' }).then((r) => { collected = r.collected; done(); }).catch((e) => { showErr('#dErr', e.message || 'Could not record — try again'); $('#dGo').disabled = false; });
+        api.contribute(SLUG, { name, amount: amt, method: 'momo', fund: fundId || '' }).then((r) => { collected = r.collected; if (r.fundTotals) fundTotals = r.fundTotals; done(); }).catch((e) => { showErr('#dErr', e.message || 'Could not record — try again'); $('#dGo').disabled = false; });
       } else {
-        state.contributors.push({ id: gid(), name, sub: 'Guest · MoMo', pledge: amt, paid: amt });
+        state.contributors.push({ id: gid(), name, sub: 'Guest · MoMo' + (fundLabel ? ' · ' + fundLabel : ''), pledge: amt, paid: amt, fund: fundId || '' });
         saveLocal(); done();
       }
     });

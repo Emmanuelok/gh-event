@@ -86,7 +86,29 @@ function uniqueSlug(title) {
   return base + '-' + Date.now().toString(36);
 }
 const clamp = (s, n) => String(s == null ? '' : s).slice(0, n);
-const publicView = (event) => ({ slug: event.slug, event: JSON.parse(event.data_json).event || {}, collected: db.sumContributions(event.id), paystack: paystack.isConfigured() });
+// Build a safe meta JSON ({answers, partyNames}) for an RSVP — bounded in size.
+function buildRsvpMeta(answers, partyNames) {
+  const out = {};
+  if (answers && typeof answers === 'object' && !Array.isArray(answers)) {
+    const a = {};
+    Object.keys(answers).slice(0, 20).forEach((k) => {
+      const v = answers[k], key = clamp(k, 40);
+      if (Array.isArray(v)) a[key] = v.slice(0, 20).map((x) => clamp(x, 80));
+      else if (v != null && v !== '') a[key] = clamp(v, 280);
+    });
+    if (Object.keys(a).length) out.answers = a;
+  }
+  if (Array.isArray(partyNames)) {
+    const pn = partyNames.slice(0, 20).map((x) => clamp(x, 80)).filter(Boolean);
+    if (pn.length) out.partyNames = pn;
+  }
+  const s = JSON.stringify(out);
+  return s === '{}' ? '' : s.slice(0, 4000);
+}
+const publicView = (event) => {
+  const fundTotals = {}; db.sumContributionsByFund(event.id).forEach((r) => { fundTotals[r.fund] = r.total; });
+  return { slug: event.slug, event: JSON.parse(event.data_json).event || {}, collected: db.sumContributions(event.id), fundTotals, paystack: paystack.isConfigured() };
+};
 
 async function serveStatic(req, res, pathname) {
   const rel = decodeURIComponent(pathname === '/' ? '/index.html' : pathname);
@@ -177,7 +199,7 @@ const server = http.createServer(async (req, res) => {
       const ev = db.getEventBySlug(mm[1]); if (!ev) return json(res, 404, { error: 'Event not found' });
       const b = await readBody(req);
       if (!b.name || !String(b.name).trim()) return json(res, 400, { error: 'Name is required' });
-      const r = db.addRsvp(ev.id, { name: clamp(b.name, 80).trim(), phone: clamp(b.phone, 30), status: ['yes', 'maybe', 'no'].includes(b.status) ? b.status : 'yes', party: Math.max(0, Math.min(50, +b.party || 1)), note: clamp(b.note, 280), source: 'link' });
+      const r = db.addRsvp(ev.id, { name: clamp(b.name, 80).trim(), phone: clamp(b.phone, 30), status: ['yes', 'maybe', 'no'].includes(b.status) ? b.status : 'yes', party: Math.max(0, Math.min(50, +b.party || 1)), note: clamp(b.note, 280), source: 'link', meta: buildRsvpMeta(b.answers, b.partyNames) });
       return json(res, 200, { ok: true, rsvp: r });
     }
     if ((mm = p.match(/^\/api\/public\/([a-z0-9-]+)\/contribute$/)) && m === 'POST') {
@@ -186,8 +208,9 @@ const server = http.createServer(async (req, res) => {
       const amount = Math.round((+b.amount || 0) * 100) / 100;
       if (!b.name || !String(b.name).trim()) return json(res, 400, { error: 'Name is required' });
       if (amount <= 0) return json(res, 400, { error: 'Enter an amount' });
-      db.addContribution(ev.id, { name: clamp(b.name, 80).trim(), amount, method: clamp(b.method, 20) || 'momo', status: 'recorded' });
-      return json(res, 200, { ok: true, collected: db.sumContributions(ev.id) });
+      db.addContribution(ev.id, { name: clamp(b.name, 80).trim(), amount, method: clamp(b.method, 20) || 'momo', fund: clamp(b.fund, 40), status: 'recorded' });
+      const fundTotals = {}; db.sumContributionsByFund(ev.id).forEach((r) => { fundTotals[r.fund] = r.total; });
+      return json(res, 200, { ok: true, collected: db.sumContributions(ev.id), fundTotals });
     }
     if ((mm = p.match(/^\/api\/public\/([a-z0-9-]+)\/pay\/init$/)) && m === 'POST') {
       const ev = db.getEventBySlug(mm[1]); if (!ev) return json(res, 404, { error: 'Event not found' });
@@ -196,7 +219,7 @@ const server = http.createServer(async (req, res) => {
       if (!b.name || amount <= 0) return json(res, 400, { error: 'Name and amount required' });
       if (!paystack.isConfigured()) return json(res, 200, { mock: true }); // client uses record-and-track flow
       const ref = 'dbr_' + ev.id + '_' + token().slice(0, 16);
-      db.addContribution(ev.id, { name: clamp(b.name, 80).trim(), email: clamp(b.email, 120), amount, method: 'paystack', ref, status: 'pending' });
+      db.addContribution(ev.id, { name: clamp(b.name, 80).trim(), email: clamp(b.email, 120), amount, method: 'paystack', ref, fund: clamp(b.fund, 40), status: 'pending' });
       try {
         const tx = await paystack.initTransaction({ email: b.email || 'guest@durbar.app', amount, reference: ref, metadata: { event: ev.slug, name: b.name }, callbackUrl: `${BASE_URL}/event.html?e=${ev.slug}&paid=1` });
         return json(res, 200, { authorization_url: tx.authorization_url, reference: ref });
