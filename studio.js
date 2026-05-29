@@ -255,6 +255,7 @@
     const by = (s) => list.filter((x) => x.status === s).length;
     $('#gKpis').innerHTML = kpi('Invited', list.length, '') + kpi('Coming', by('yes'), heads + ' heads', 'good') +
       kpi('Maybe / pending', by('maybe') + by('pending'), 'to chase', 'warn') + kpi("Can't make it", by('no'), '', 'bad');
+    animKpis('#gKpis');
     $('#gBody').innerHTML = list.length ? list.map((x) => `<tr>
       <td><b>${esc(x.name)}</b><br><span class="dim">${esc(x.phone || '')}</span></td>
       <td><span class="tag grp">${esc(x.group)}</span></td>
@@ -287,6 +288,7 @@
     const t = totals();
     $('#mKpis').innerHTML = kpi('Pledged', ghs(t.pledged)) + kpi('Collected', ghs(t.collected), '', 'good') +
       kpi('To collect', ghs(t.toCollect), '', 'warn') + kpi('Owed to vendors', ghs(t.vDue), '', 'bad');
+    animKpis('#mKpis');
     $('#cBody').innerHTML = allContribs().map((c) => {
       const st = c.paid >= c.pledge ? 'yes' : (c.paid > 0 ? 'maybe' : 'pending');
       const lbl = c.paid >= c.pledge ? 'paid' : (c.paid > 0 ? 'part' : 'pledged');
@@ -334,6 +336,7 @@
       <span class="cd">⏳ ${countdown(e.date)}</span>`;
     $('#dKpis').innerHTML = kpi('RSVP yes', yes, heads + ' heads', 'good') + kpi('Collected', ghs(t.collected), 'of ' + ghs(t.pledged) + ' pledged') +
       kpi('Vendor balance', ghs(t.vDue), state.vendors.length + ' vendors', 'bad') + kpi('To chase', pending, 'maybe / pending', 'warn');
+    animKpis('#dKpis');
     aiInto('#dashAI', t, false);
     $('#dGuests').innerHTML = `<table class="tbl"><thead><tr><th>Guest</th><th>RSVP</th><th style="text-align:right">Party</th></tr></thead><tbody>${gs.slice(0, 6).map((x) => `<tr><td><b>${esc(x.name)}</b></td><td><span class="tag ${x.status}">${x.status}</span></td><td style="text-align:right">${esc(x.party)}</td></tr>`).join('') || '<tr><td>No guests</td></tr>'}</tbody></table>`;
     $('#dMoney').innerHTML = `<table class="tbl"><tbody>
@@ -344,6 +347,62 @@
       <tr><td>Cash in hand</td><td class="r"><b>${t.cash < 0 ? '-' : ''}${ghs(Math.abs(t.cash))}</b></td></tr></tbody></table>`;
   }
   function kpi(lab, val, sub, cls) { return `<div class="kpi ${cls || ''}"><div class="lab">${lab}</div><div class="val">${val}</div>${sub ? `<div class="sub">${sub}</div>` : ''}</div>`; }
+
+  /* ============================================================
+     CRAFT — count-ups, confetti, ⌘K command palette
+     (harvested from the Studio OS, re-skinned warm)
+     ============================================================ */
+  function countUp(el) {
+    const txt = el.textContent, m = txt.match(/-?[\d,]+(?:\.\d+)?/);
+    if (!m) return;
+    const target = +m[0].replace(/,/g, ''); if (!isFinite(target) || target === 0) return;
+    const pre = txt.slice(0, m.index), suf = txt.slice(m.index + m[0].length);
+    el.classList.add('cu');
+    const t0 = performance.now(), dur = 600;
+    requestAnimationFrame(function step(t) {
+      const k = Math.min(1, (t - t0) / dur), v = Math.round(target * (1 - Math.pow(1 - k, 3)));
+      el.textContent = pre + v.toLocaleString('en-GH') + suf;
+      if (k < 1) requestAnimationFrame(step); else el.textContent = txt;
+    });
+  }
+  function animKpis(sel) { requestAnimationFrame(() => $$(sel + ' .val').forEach(countUp)); }
+
+  function confetti() {
+    const c = $('#confetti'); if (!c || !c.getContext) return;
+    const x = c.getContext('2d'); c.width = innerWidth; c.height = innerHeight;
+    const cols = ['#0b6e4f', '#e8a33d', '#c0392b', '#10916a', '#f4b400'];
+    const P = Array.from({ length: 120 }, () => ({ x: innerWidth / 2, y: innerHeight / 3, vx: (Math.random() - .5) * 13, vy: Math.random() * -13 - 4, c: cols[(Math.random() * cols.length) | 0], s: 4 + Math.random() * 6, r: Math.random() * 6 }));
+    let f = 0;
+    (function loop() {
+      x.clearRect(0, 0, c.width, c.height);
+      P.forEach((p) => { p.vy += .42; p.x += p.vx; p.y += p.vy; p.r += .2; x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * .6); x.restore(); });
+      if (++f < 110) requestAnimationFrame(loop); else x.clearRect(0, 0, c.width, c.height);
+    })();
+  }
+
+  const themeLabel = (k) => String(k).split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' & ');
+  let cmds = [], cmdSel = 0;
+  function buildCmds() {
+    cmds = [];
+    [['dashboard', '📊', 'Dashboard'], ['design', '🎨', 'Design event'], ['guests', '👥', 'Guests & RSVP'], ['money', '💛', 'Money & ledger']]
+      .forEach(([id, ic, label]) => cmds.push({ g: 'Go to', ic, label, run: () => switchTab(id) }));
+    const click = (id) => { const b = $(id); if (b) b.click(); };
+    cmds.push({ g: 'Action', ic: '🔗', label: 'Publish / get share link', run: () => click('#btnPublish') });
+    cmds.push({ g: 'Action', ic: '👁', label: 'Preview as guest', run: () => click('#btnGuest') });
+    cmds.push({ g: 'Action', ic: '💾', label: 'Save now', run: () => click('#btnSave') });
+    cmds.push({ g: 'Action', ic: '➕', label: 'Add a guest', run: () => { switchTab('guests'); setTimeout(() => { const n = $('#gName'); if (n) n.focus(); }, 70); } });
+    Object.keys(THEMES).forEach((k) => cmds.push({ g: 'Switch theme', ic: '🎨', label: themeLabel(k), run: () => { state.event.theme = k; renderSwatches(); renderPreview(); touched(); switchTab('design'); toast(themeLabel(k) + ' theme applied'); } }));
+  }
+  function openCmd() { const k = $('#cmdk'); if (!k) return; buildCmds(); k.classList.add('open'); $('#cmdkInput').value = ''; cmdSel = 0; drawCmd(''); $('#cmdkInput').focus(); }
+  function closeCmd() { const k = $('#cmdk'); if (k) k.classList.remove('open'); }
+  function filteredCmds(q) { q = (q || '').toLowerCase().trim(); return q ? cmds.filter((c) => (c.label + ' ' + c.g).toLowerCase().includes(q)) : cmds; }
+  function drawCmd(q) {
+    const list = filteredCmds(q); cmdSel = Math.max(0, Math.min(cmdSel, list.length - 1));
+    let html = '', lg = '';
+    list.forEach((c, i) => { if (c.g !== lg) { html += `<div class="cg">${c.g}</div>`; lg = c.g; } html += `<div class="res${i === cmdSel ? ' sel' : ''}" data-i="${i}"><span class="ic">${c.ic}</span>${esc(c.label)}<span class="hint">↵</span></div>`; });
+    $('#cmdkResults').innerHTML = html || '<div class="cg">No matches</div>';
+    $$('#cmdkResults .res').forEach((el) => el.onclick = () => { const c = filteredCmds($('#cmdkInput').value)[+el.dataset.i]; if (c) { c.run(); closeCmd(); } });
+  }
 
   /* ============================================================
      WIRING
@@ -411,7 +470,25 @@
         if (active && active.dataset.tab === 'money') renderMoney();
       },
       onSave: null,
+      confetti,
     };
+
+    // ⌘K command palette
+    const cmdkBtn = $('#cmdkBtn'); if (cmdkBtn) cmdkBtn.addEventListener('click', openCmd);
+    document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openCmd(); } });
+    const cmdk = $('#cmdk');
+    if (cmdk) {
+      cmdk.addEventListener('click', (e) => { if (e.target === cmdk) closeCmd(); });
+      const ci = $('#cmdkInput');
+      ci.addEventListener('input', () => { cmdSel = 0; drawCmd(ci.value); });
+      ci.addEventListener('keydown', (e) => {
+        const list = filteredCmds(ci.value);
+        if (e.key === 'ArrowDown') { cmdSel = Math.min(cmdSel + 1, list.length - 1); drawCmd(ci.value); e.preventDefault(); }
+        else if (e.key === 'ArrowUp') { cmdSel = Math.max(cmdSel - 1, 0); drawCmd(ci.value); e.preventDefault(); }
+        else if (e.key === 'Enter') { if (list[cmdSel]) { list[cmdSel].run(); closeCmd(); } }
+        else if (e.key === 'Escape') closeCmd();
+      });
+    }
 
     const gc = $('#gCount'); if (gc) gc.textContent = state.guests.length;
     renderPreview();

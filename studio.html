@@ -19,6 +19,7 @@
   <div class="right">
     <span class="cloud-chip" id="cloudChip" title="Sign in to sync &amp; share a live link">● Local only</span>
     <span class="save-state saved" id="saveState">All changes saved</span>
+    <button class="kbtn" id="cmdkBtn" title="Search &amp; commands (Ctrl/⌘ K)"><span>⌘</span>K</button>
     <button class="btn btn-sm" id="btnReset">Reset</button>
     <button class="btn btn-sm" id="btnSave">Save</button>
     <button class="btn btn-gold btn-sm" id="btnPublish">🔗 Publish</button>
@@ -215,6 +216,10 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ⌘K command palette + celebration canvas (harvested craft) -->
+<div class="cmdk" id="cmdk"><div class="cmdk-box"><input id="cmdkInput" placeholder="Search views or run a command…" autocomplete="off" spellcheck="false" /><div class="results" id="cmdkResults"></div></div></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
 
 <!-- account / publish / share modal -->
 <div class="modal" id="authModal">

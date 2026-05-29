@@ -160,6 +160,7 @@
     } catch (e) { open('<h3>Could not publish</h3><p class="lead">' + escapeHtml(e.message || 'Please try again.') + '</p>'); }
   }
   function shareSheet() {
+    if (window.__studio && window.__studio.confetti) window.__studio.confetti();
     const link = location.origin + '/event.html?e=' + slug;
     open(`<h3>🎉 Your event is live</h3>
       <p class="lead">Share this link on WhatsApp, SMS or anywhere. Guests open it, RSVP and contribute — no app, no login.</p>

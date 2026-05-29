@@ -250,3 +250,36 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 .share-link input{font-size:13px}
 .copied{color:var(--green-d);font-weight:700;font-size:12.5px;margin-top:8px;display:none}
 .copied.show{display:block}
+
+/* ===========================================================
+   CRAFT — harvested from the Studio OS, re-skinned warm:
+   ⌘K command palette, count-ups, view transitions, confetti,
+   refined hover. Same premium feel, Ghana-events aesthetic.
+   =========================================================== */
+.kbtn{display:inline-flex;align-items:center;gap:1px;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:800;letter-spacing:.03em;transition:.15s}
+.kbtn span{font-size:13px}
+.kbtn:hover{border-color:var(--green);color:var(--green);transform:translateY(-1px)}
+.cmdk{position:fixed;inset:0;background:rgba(18,24,21,.5);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);display:none;align-items:flex-start;justify-content:center;padding-top:13vh;z-index:95}
+.cmdk.open{display:flex}
+.cmdk-box{width:min(600px,92vw);background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-lg);overflow:hidden;animation:pop .16s ease}
+.cmdk input{width:100%;padding:17px 20px;border:0;border-bottom:1px solid var(--line);font-size:16px;font-family:inherit;color:var(--ink);outline:none;background:#fff}
+.cmdk .results{max-height:52vh;overflow:auto;padding:7px}
+.cmdk .res{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:10px;font-size:14px;cursor:pointer;font-weight:600;color:var(--ink-2)}
+.cmdk .res .ic{width:22px;text-align:center;font-size:15px}
+.cmdk .res .hint{margin-left:auto;font-size:11px;color:var(--muted);opacity:0}
+.cmdk .res.sel{background:rgba(11,110,79,.1);color:var(--green-d)}
+.cmdk .res.sel .hint{opacity:1}
+.cmdk .cg{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:800;padding:11px 13px 4px}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:120}
+
+/* view transition + hover lift (subtle) */
+.tab.active{animation:tabin .28s ease}
+@keyframes tabin{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.btn{will-change:transform}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.kpi{transition:transform .15s,box-shadow .15s}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.tpl{transition:transform .13s,border-color .13s,background .13s}
+.tpl:hover{transform:translateY(-1px)}
+.val.cu{font-variant-numeric:tabular-nums}
