@@ -21,6 +21,7 @@
   let state = null;   // local mode: full studio state
   let ev = null;      // the event design (both modes)
   let collected = 0;
+  let payEnabled = false;
 
   const getCollected = () => mode === 'server' ? collected : (state.contributors || []).reduce((a, c) => a + (+c.paid || 0), 0);
   function render() {
@@ -33,8 +34,9 @@
     if (mode === 'server') {
       setServerBanner();
       api.getPublic(SLUG).then((res) => {
-        ev = res.event || {}; ev.gallery = ev.gallery || []; collected = res.collected || 0;
+        ev = res.event || {}; ev.gallery = ev.gallery || []; collected = res.collected || 0; payEnabled = !!res.paystack;
         render();
+        if (new URLSearchParams(location.search).get('paid')) afterPaid();
       }).catch((e) => {
         page.innerHTML = '<div class="noev"><h3>Can\'t open this invite</h3><p>' + esc(e.message || 'This link may be wrong or the event was removed.') + '</p><p style="margin-top:10px"><a href="index.html">About Durbar →</a></p></div>';
       });
@@ -51,6 +53,11 @@
       ev = state.event;
       render();
     }
+  }
+  function afterPaid() {
+    api.getPublic(SLUG).then((r) => { collected = r.collected || collected; render(); }).catch(() => {});
+    open(`<div class="done"><div class="big">🎉</div><h3>Thank you!</h3><p>Your payment is being confirmed — the host will see it shortly.</p></div>`);
+    setTimeout(close, 3200);
   }
   function setServerBanner() {
     const n = $('#gtNote'), l = $('#gtLink');
@@ -111,12 +118,23 @@
   function openContribute() {
     const c = ev.contribution || {};
     open(`<h3>💛 ${esc(c.label || 'Contribute via MoMo')}</h3>
-      <p class="lead">Send Mobile Money to the host, then confirm here so it's tracked.</p>
-      <div class="momo-box">Send to <b>${esc(c.momo || '024 000 0000')}</b><br><span class="dim small">${esc(ev.title)} · MTN / Telecel / AT MoMo</span></div>
+      <p class="lead">${payEnabled ? 'Pay securely online, or send Mobile Money to the host and confirm below.' : 'Send Mobile Money to the host, then confirm here so it\'s tracked.'}</p>
       <label>Your name</label><input id="dName" placeholder="e.g. Uncle Yaw" />
-      <label>Amount sent (GHS)</label><input id="dAmt" type="number" placeholder="200" />
+      <label>Amount (GHS)</label><input id="dAmt" type="number" placeholder="200" />
+      ${payEnabled ? '<label>Email <span style="text-transform:none;font-weight:500">(for your receipt)</span></label><input id="dEmail" type="email" placeholder="you@example.com" />' : ''}
       <div class="err" id="dErr" style="display:none"></div>
-      <button class="go gold" id="dGo">I've sent it ✓</button>`);
+      ${payEnabled ? '<button class="go" id="dPay">Pay online (MoMo / card)</button>' : ''}
+      <div class="momo-box">${payEnabled ? 'Or send' : 'Send'} Mobile Money to <b>${esc(c.momo || '024 000 0000')}</b><br><span class="dim small">${esc(ev.title)} · MTN / Telecel / AT MoMo</span></div>
+      <button class="go gold" id="dGo">I've sent it manually ✓</button>`);
+    if (payEnabled) $('#dPay').addEventListener('click', () => {
+      const name = $('#dName').value.trim(); const amt = +$('#dAmt').value || 0;
+      if (!name) { $('#dName').focus(); return; }
+      if (amt <= 0) { $('#dAmt').focus(); return; }
+      $('#dPay').disabled = true;
+      api.payInit(SLUG, { name, email: ($('#dEmail') && $('#dEmail').value.trim()) || '', amount: amt })
+        .then((r) => { if (r.authorization_url) window.location.href = r.authorization_url; else $('#dGo').click(); })
+        .catch((e) => { showErr('#dErr', e.message || 'Could not start payment'); $('#dPay').disabled = false; });
+    });
     $('#dGo').addEventListener('click', () => {
       const name = $('#dName').value.trim(); const amt = +$('#dAmt').value || 0;
       if (!name) { $('#dName').focus(); return; }

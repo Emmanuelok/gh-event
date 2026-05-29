@@ -59,6 +59,13 @@
       ],
     };
   }
+  function blankState() {
+    const s = seed();
+    Object.assign(s.event, { title: 'New event', subtitle: '', hosts: '', hashtag: '', story: '', cover: '', gallery: [], dressCode: '', mapNote: '', mapUrl: '', schedule: [{ time: '', label: '' }] });
+    s.event.date = new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 16);
+    s.guests = []; s.contributors = []; s.vendors = [];
+    return s;
+  }
 
   /* ---------- persistence ---------- */
   const KEY = 'durbar.studio.v2';
@@ -220,10 +227,27 @@
      GUESTS
      ============================================================ */
   // Link-captured responses are merged in for display only (kept out of saved state)
-  function mapRsvp(r) { return { id: 'r' + r.id, name: r.name, phone: r.phone || '', group: 'via link', status: r.status, party: +r.party || 0, note: r.note || '', _remote: true }; }
-  function mapContrib(c) { return { id: 'c' + c.id, name: c.name, sub: 'via link · ' + (c.method || 'momo'), pledge: +c.amount || 0, paid: +c.amount || 0, _remote: true }; }
+  function mapRsvp(r) { return { id: 'r' + r.id, sid: r.id, name: r.name, phone: r.phone || '', group: r.source === 'host' ? 'added' : 'via link', status: r.status, party: +r.party || 0, note: r.note || '', _remote: true }; }
+  function mapContrib(c) { return { id: 'c' + c.id, sid: c.id, name: c.name, sub: 'via link · ' + (c.method || 'momo'), pledge: +c.amount || 0, paid: +c.amount || 0, _remote: true }; }
   function allGuests() { return state.guests.concat(remoteRsvps.map(mapRsvp)); }
   function allContribs() { return state.contributors.concat(remoteContribs.map(mapContrib)); }
+  function downloadCSV(filename, rows) {
+    const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const blob = new Blob([rows.map((r) => r.map(q).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = ce('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+  }
+  function exportGuests() {
+    const rows = [['Name', 'Phone', 'Group', 'RSVP', 'Party', 'Note']];
+    allGuests().forEach((x) => rows.push([x.name, x.phone, x.group, x.status, x.party, x.note]));
+    downloadCSV('durbar-guests.csv', rows); toast('Guest list exported');
+  }
+  function exportMoney() {
+    const rows = [['Name', 'Detail', 'Pledged', 'Paid']];
+    allContribs().forEach((c) => rows.push([c.name, c.sub, c.pledge, c.paid]));
+    rows.push(['', '', '', '']);
+    state.vendors.forEach((v) => rows.push([v.name, v.cat + ' (vendor cost)', v.total, v.paid]));
+    downloadCSV('durbar-money.csv', rows); toast('Ledger exported');
+  }
   function renderGuests() {
     const list = allGuests();
     const gc = $('#gCount'); if (gc) gc.textContent = list.length;
@@ -236,7 +260,7 @@
       <td><span class="tag grp">${esc(x.group)}</span></td>
       <td><span class="tag ${x.status}">${x.status}</span></td>
       <td>${esc(x.party)}</td><td class="dim">${esc(x.note || '')}</td>
-      <td style="text-align:right">${x._remote ? '<span class="dim small" title="Responded via your shared link">link</span>' : `<button class="x-btn" data-delg="${x.id}">✕</button>`}</td></tr>`).join('')
+      <td style="text-align:right">${x._remote ? `<button class="x-btn" data-delsrv="${x.sid}" title="Remove this response">✕</button>` : `<button class="x-btn" data-delg="${x.id}">✕</button>`}</td></tr>`).join('')
       : `<tr><td colspan="6"><div class="empty">No guests yet — add your first above, or share the page and let them RSVP.</div></td></tr>`;
     $('#gGroup').innerHTML = GROUPS.map((x) => `<option>${x}</option>`).join('');
     $('#gStatus').innerHTML = STATUSES.map((x) => `<option value="${x}">${x}</option>`).join('');
@@ -266,7 +290,7 @@
     $('#cBody').innerHTML = allContribs().map((c) => {
       const st = c.paid >= c.pledge ? 'yes' : (c.paid > 0 ? 'maybe' : 'pending');
       const lbl = c.paid >= c.pledge ? 'paid' : (c.paid > 0 ? 'part' : 'pledged');
-      const act = c._remote ? '<span class="dim small" title="Sent via your shared link">link</span>'
+      const act = c._remote ? `<button class="x-btn" data-delsrvc="${c.sid}" title="Remove this contribution">✕</button>`
         : `${c.paid < c.pledge ? `<button class="btn btn-sm" data-payc="${c.id}">Mark paid</button> ` : ''}<button class="x-btn" data-delc="${c.id}">✕</button>`;
       return `<tr><td><b>${esc(c.name)}</b><br><span class="dim">${esc(c.sub)}</span></td>
         <td>${ghs(c.paid)} <span class="dim">/ ${ghs(c.pledge)}</span></td>
@@ -343,10 +367,15 @@
     buildEditor();
     $('#schAdd').addEventListener('click', addSchedule);
     $('#btnGuest').addEventListener('click', () => { save(); window.open('event.html', '_blank'); });
+    const ge = $('#gExport'); if (ge) ge.addEventListener('click', exportGuests);
+    const me2 = $('#mExport'); if (me2) me2.addEventListener('click', exportMoney);
 
     $('#gAdd').addEventListener('click', addGuest);
     $('#gName').addEventListener('keydown', (e) => { if (e.key === 'Enter') addGuest(); });
-    $('#gBody').addEventListener('click', (e) => { const d = e.target.closest('[data-delg]'); if (d) { state.guests = state.guests.filter((x) => x.id !== d.dataset.delg); renderGuests(); renderDash(); save(true); } });
+    $('#gBody').addEventListener('click', (e) => {
+      const d = e.target.closest('[data-delg]'); if (d) { state.guests = state.guests.filter((x) => x.id !== d.dataset.delg); renderGuests(); renderDash(); save(true); return; }
+      const s = e.target.closest('[data-delsrv]'); if (s && window.__cloud && window.__cloud.deleteGuest) window.__cloud.deleteGuest(+s.dataset.delsrv);
+    });
 
     $('#cAdd').addEventListener('click', () => {
       const n = $('#cName').value.trim(); if (!n) { toast('Enter a name'); return; }
@@ -359,9 +388,10 @@
       $('#vName').value = ''; $('#vTotal').value = ''; $('#vPaid').value = ''; renderMoney(); renderDash(); save(true);
     });
     $('#cBody').addEventListener('click', (e) => {
-      const pay = e.target.closest('[data-payc]'); const del = e.target.closest('[data-delc]');
+      const pay = e.target.closest('[data-payc]'); const del = e.target.closest('[data-delc]'); const ds = e.target.closest('[data-delsrvc]');
       if (pay) { const c = state.contributors.find((x) => x.id === pay.dataset.payc); if (c) c.paid = c.pledge; renderMoney(); renderDash(); save(true); }
       if (del) { state.contributors = state.contributors.filter((x) => x.id !== del.dataset.delc); renderMoney(); renderDash(); save(true); }
+      if (ds && window.__cloud && window.__cloud.deleteContribution) window.__cloud.deleteContribution(+ds.dataset.delsrvc);
     });
     $('#vBody').addEventListener('click', (e) => { const d = e.target.closest('[data-delv]'); if (d) { state.vendors = state.vendors.filter((x) => x.id !== d.dataset.delv); renderMoney(); renderDash(); save(true); } });
 
@@ -371,6 +401,7 @@
     window.__studio = {
       get: () => state,
       load: (s) => { state = migrate(s); buildEditor(); renderPreview(); switchTab('design'); },
+      blank: () => blankState(),
       setRemote: (rsvps, contribs) => {
         remoteRsvps = rsvps || []; remoteContribs = contribs || [];
         const gc2 = $('#gCount'); if (gc2) gc2.textContent = allGuests().length;

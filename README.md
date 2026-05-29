@@ -40,10 +40,34 @@ API surface: `POST /api/auth/{signup,login,logout}` · `GET /api/auth/me` ·
 `GET|POST /api/events` · `GET|PUT /api/events/:id` ·
 `GET /api/public/:slug` · `POST /api/public/:slug/{rsvp,contribute}`.
 
-> **Hosting note:** the static strategy site still deploys to Pages/Vercel, but the **API server**
-> needs a Node host with a persistent disk for the SQLite file (Render, Railway, Fly.io) — or swap
-> `server/db.js` to a managed Postgres. Real MoMo (Paystack/Hubtel) plugs into the `/contribute`
-> flow once you add provider keys.
+### Deploy the API server
+
+Committed with one-click configs — pick a Node host with a **persistent disk** (so the SQLite file
+survives restarts), or point `DURBAR_DB` at a managed Postgres later.
+
+| Host | How |
+| --- | --- |
+| **Render** | New → Blueprint → select this repo (reads `render.yaml`); it provisions a 1 GB disk at `/var/data`. |
+| **Fly.io** | `fly launch --copy-config --now`, then `fly volumes create durbar_data --size 1`. |
+| **Railway** | New project from repo — runs `npm start` (`Procfile`); add a volume mounted at `/data`. |
+| **Docker** | `docker build -t durbar . && docker run -p 3000:3000 -v durbar_data:/data durbar` |
+
+**Environment variables**
+
+| Var | Purpose |
+| --- | --- |
+| `DURBAR_SECRET` | **Set in production** — signs session cookies. |
+| `DURBAR_DB` | SQLite path; use the mounted disk, e.g. `/data/durbar.db`. |
+| `PUBLIC_URL` | Your live URL — used in verification + payment-callback links. |
+| `PORT` | Port to listen on (most hosts set this for you). |
+| `PAYSTACK_SECRET` | Optional — enables real Paystack MoMo/card checkout + webhook. |
+| `MAIL_FROM` | From-address; wire a provider in `server/mailer.js` to actually send mail. |
+
+**Going live with payments:** set `PAYSTACK_SECRET`, then point your Paystack dashboard webhook at
+`https://<your-url>/api/webhooks/paystack`. The guest page automatically shows a **Pay online** button
+when keys are present; without them it stays in record-and-track mode. Email verification / password
+reset are built and log links to the server console in dev — drop a provider (Resend / Postmark / SMTP)
+into `server/mailer.js` to send for real.
 
 ## View it online (one-time, ~20 seconds)
 

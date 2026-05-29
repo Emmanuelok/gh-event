@@ -15,7 +15,7 @@
 <!-- top bar -->
 <header class="sbar">
   <div class="sbrand"><span class="mk">D</span><span>Durbar<small>studio</small></span></div>
-  <div class="ev-pick">📅 <select aria-label="Event"><option>Ama &amp; Kwame · White Wedding</option></select></div>
+  <div class="ev-pick">📅 <select id="evPick" aria-label="Switch event"><option>Ama &amp; Kwame · White Wedding</option></select></div>
   <div class="right">
     <span class="cloud-chip" id="cloudChip" title="Sign in to sync &amp; share a live link">● Local only</span>
     <span class="save-state saved" id="saveState">All changes saved</span>
@@ -163,7 +163,7 @@
 
     <!-- ============ GUESTS ============ -->
     <section class="tab" data-tab="guests">
-      <div class="tab-h"><h2>👥 Guests &amp; RSVP</h2><span class="pill-tip">No app download for guests</span></div>
+      <div class="tab-h"><h2>👥 Guests &amp; RSVP</h2><span class="pill-tip">No app download for guests</span><button class="btn btn-sm" id="gExport" style="margin-left:auto">⬇️ Export CSV</button></div>
       <p class="sub">Add guests, group them, and track who's coming. Every "yes" feeds the headcount the dashboard and AI use.</p>
       <div class="kpis" id="gKpis"></div>
       <div class="addbar">
@@ -181,7 +181,7 @@
 
     <!-- ============ MONEY ============ -->
     <section class="tab" data-tab="money">
-      <div class="tab-h"><h2>💛 Contribution &amp; committee ledger</h2><span class="pill-tip">⭐ The Durbar wedge</span></div>
+      <div class="tab-h"><h2>💛 Contribution &amp; committee ledger</h2><span class="pill-tip">⭐ The Durbar wedge</span><button class="btn btn-sm" id="mExport" style="margin-left:auto">⬇️ Export CSV</button></div>
       <p class="sub">Reconcile pledges, MoMo, cash &amp; diaspora money in — against vendor balances out. The AI flags the gap before the event, not after.</p>
       <div class="kpis" id="mKpis"></div>
       <div class="ai-note" id="ledgerAI"></div>

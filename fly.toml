@@ -1,0 +1,24 @@
+# Fly.io config — builds from the Dockerfile. Run: fly launch --copy-config --now
+app = "durbar"
+primary_region = "cdg"   # Paris — strong West Africa latency (or "lhr" London / "jnb" Johannesburg)
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  DURBAR_DB = "/data/durbar.db"
+  # Set secrets (not here) with: fly secrets set DURBAR_SECRET=... PAYSTACK_SECRET=... PUBLIC_URL=https://durbar.fly.dev
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+# Persistent volume for the SQLite database. Create once:
+#   fly volumes create durbar_data --size 1 --region cdg
+[[mounts]]
+  source = "durbar_data"
+  destination = "/data"

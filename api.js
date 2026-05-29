@@ -18,6 +18,9 @@ window.api = (function () {
     signup: (email, password, name) => req('POST', '/api/auth/signup', { email, password, name }),
     login: (email, password) => req('POST', '/api/auth/login', { email, password }),
     logout: () => req('POST', '/api/auth/logout', {}),
+    requestReset: (email) => req('POST', '/api/auth/request-reset', { email }),
+    reset: (token, password) => req('POST', '/api/auth/reset', { token, password }),
+    del: (path) => req('DELETE', path),
     myEvents: () => req('GET', '/api/events'),
     createEvent: (state) => req('POST', '/api/events', { state }),
     getEvent: (id) => req('GET', '/api/events/' + id),
@@ -25,5 +28,6 @@ window.api = (function () {
     getPublic: (slug) => req('GET', '/api/public/' + encodeURIComponent(slug)),
     rsvp: (slug, payload) => req('POST', '/api/public/' + encodeURIComponent(slug) + '/rsvp', payload),
     contribute: (slug, payload) => req('POST', '/api/public/' + encodeURIComponent(slug) + '/contribute', payload),
+    payInit: (slug, payload) => req('POST', '/api/public/' + encodeURIComponent(slug) + '/pay/init', payload),
   };
 })();

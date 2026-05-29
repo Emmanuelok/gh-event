@@ -1,0 +1,29 @@
+# Render blueprint — deploy the Durbar API server.
+# In Render: New → Blueprint → connect this repo → it reads this file.
+services:
+  - type: web
+    name: durbar
+    runtime: node
+    region: frankfurt            # closest Render region to Ghana
+    plan: starter                # a persistent disk requires a paid instance;
+    branch: claude/adoring-mccarthy-RBmgV
+    buildCommand: ""             # zero-dependency: nothing to build
+    startCommand: node --no-warnings server/index.js
+    healthCheckPath: /api/auth/me
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DURBAR_SECRET       # session signing key — keep secret
+        generateValue: true
+      - key: DURBAR_DB
+        value: /var/data/durbar.db
+      - key: PUBLIC_URL          # set to your Render URL once known, e.g. https://durbar.onrender.com
+        sync: false
+      - key: PAYSTACK_SECRET     # optional — enables real MoMo/card payments
+        sync: false
+    disk:
+      name: durbar-data
+      mountPath: /var/data       # SQLite lives here so it survives deploys/restarts
+      sizeGB: 1
+# Free tier note: remove the `disk:` block and set DURBAR_DB=/tmp/durbar.db to try it
+# on the free plan — but data resets on each deploy. Use the disk (or Postgres) for real use.
