@@ -86,7 +86,10 @@ function uniqueSlug(title) {
   return base + '-' + Date.now().toString(36);
 }
 const clamp = (s, n) => String(s == null ? '' : s).slice(0, n);
-const publicView = (event) => ({ slug: event.slug, event: JSON.parse(event.data_json).event || {}, collected: db.sumContributions(event.id), paystack: paystack.isConfigured() });
+const publicView = (event) => {
+  const fundTotals = {}; db.sumContributionsByFund(event.id).forEach((r) => { fundTotals[r.fund] = r.total; });
+  return { slug: event.slug, event: JSON.parse(event.data_json).event || {}, collected: db.sumContributions(event.id), fundTotals, paystack: paystack.isConfigured() };
+};
 
 async function serveStatic(req, res, pathname) {
   const rel = decodeURIComponent(pathname === '/' ? '/index.html' : pathname);
@@ -186,8 +189,9 @@ const server = http.createServer(async (req, res) => {
       const amount = Math.round((+b.amount || 0) * 100) / 100;
       if (!b.name || !String(b.name).trim()) return json(res, 400, { error: 'Name is required' });
       if (amount <= 0) return json(res, 400, { error: 'Enter an amount' });
-      db.addContribution(ev.id, { name: clamp(b.name, 80).trim(), amount, method: clamp(b.method, 20) || 'momo', status: 'recorded' });
-      return json(res, 200, { ok: true, collected: db.sumContributions(ev.id) });
+      db.addContribution(ev.id, { name: clamp(b.name, 80).trim(), amount, method: clamp(b.method, 20) || 'momo', fund: clamp(b.fund, 40), status: 'recorded' });
+      const fundTotals = {}; db.sumContributionsByFund(ev.id).forEach((r) => { fundTotals[r.fund] = r.total; });
+      return json(res, 200, { ok: true, collected: db.sumContributions(ev.id), fundTotals });
     }
     if ((mm = p.match(/^\/api\/public\/([a-z0-9-]+)\/pay\/init$/)) && m === 'POST') {
       const ev = db.getEventBySlug(mm[1]); if (!ev) return json(res, 404, { error: 'Event not found' });
@@ -196,7 +200,7 @@ const server = http.createServer(async (req, res) => {
       if (!b.name || amount <= 0) return json(res, 400, { error: 'Name and amount required' });
       if (!paystack.isConfigured()) return json(res, 200, { mock: true }); // client uses record-and-track flow
       const ref = 'dbr_' + ev.id + '_' + token().slice(0, 16);
-      db.addContribution(ev.id, { name: clamp(b.name, 80).trim(), email: clamp(b.email, 120), amount, method: 'paystack', ref, status: 'pending' });
+      db.addContribution(ev.id, { name: clamp(b.name, 80).trim(), email: clamp(b.email, 120), amount, method: 'paystack', ref, fund: clamp(b.fund, 40), status: 'pending' });
       try {
         const tx = await paystack.initTransaction({ email: b.email || 'guest@durbar.app', amount, reference: ref, metadata: { event: ev.slug, name: b.name }, callbackUrl: `${BASE_URL}/event.html?e=${ev.slug}&paid=1` });
         return json(res, 200, { authorization_url: tx.authorization_url, reference: ref });

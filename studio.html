@@ -152,6 +152,17 @@
               </div>
             </div>
           </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">🎁</span> Registry &amp; funds <span class="dim small" id="regCount"></span><span class="chev">▾</span></div>
+            <div class="ed-body">
+              <div class="fld"><label class="toggle"><input type="checkbox" id="fRegOn" data-bind="registry.enabled" /> <span>Show a registry of funds on the page</span></label></div>
+              <div class="fld"><label>Section heading</label><input type="text" id="fRegHeading" data-bind="registry.heading" placeholder="Registry &amp; funds" /></div>
+              <div class="fld"><label>Intro note <span class="opt">(optional)</span></label><input type="text" id="fRegNote" data-bind="registry.note" placeholder="Your presence is the gift — but if you wish to bless us…" /></div>
+              <div id="regList"></div>
+              <button class="add-row" id="regAdd">+ Add a fund</button>
+            </div>
+          </div>
         </div>
 
         <!-- live preview -->

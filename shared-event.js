@@ -91,6 +91,9 @@ window.DURBAR = (function () {
     const gallery = (e.gallery || []);
     const travel = (e.travel || []).filter((t) => t.title || t.detail);
     const faq = (e.faq || []).filter((f) => f.q || f.a);
+    const reg = e.registry || {};
+    const funds = (reg.enabled && Array.isArray(reg.funds)) ? reg.funds.filter((f) => f.title) : [];
+    const fundTotals = ctx.fundTotals || {};
     const goal = +(e.contribution && e.contribution.goal) || 0;
     const collected = +ctx.collected || 0;
     const pct = goal ? Math.min(100, Math.round((collected / goal) * 100)) : 0;
@@ -109,6 +112,7 @@ window.DURBAR = (function () {
     navItems.push(['ev-venue', 'Venue']);
     if (travel.length) navItems.push(['ev-travel', 'Travel']);
     if (faq.length) navItems.push(['ev-faq', 'FAQ']);
+    if (funds.length) navItems.push(['ev-registry', 'Registry']);
     if (gallery.length) navItems.push(['ev-gallery', 'Gallery']);
     navItems.push(['ev-rsvp', 'RSVP']);
     const nav = navItems.length > 3
@@ -131,6 +135,10 @@ window.DURBAR = (function () {
       <div class="ev-sec" id="ev-venue"><h5>📍 Venue</h5><p><b>${esc(e.venue || 'Venue')}</b><br>${esc(e.address || '')}${e.city ? ', ' + esc(e.city) : ''}${e.mapNote ? '<br><span class="ev-dim">' + esc(e.mapNote) + '</span>' : ''}<br><a class="ev-maplink" href="${mapHref}" target="_blank" rel="noopener">Open in Maps →</a></p></div>
       ${travel.length ? `<div class="ev-sec" id="ev-travel"><h5>✈️ Travel &amp; stay</h5><div class="ev-travel">${travel.map((t) => `<div class="ti"><b>${esc(t.title)}</b>${t.detail ? `<p>${esc(t.detail)}</p>` : ''}${t.url ? `<a href="${esc(t.url)}" target="_blank" rel="noopener">More →</a>` : ''}</div>`).join('')}</div></div>` : ''}
       ${faq.length ? `<div class="ev-sec" id="ev-faq"><h5>❓ Good to know</h5><div class="ev-faq">${faq.map((f) => `<details><summary>${esc(f.q || 'Question')}</summary><div class="fa">${esc(f.a || '')}</div></details>`).join('')}</div></div>` : ''}
+      ${funds.length ? `<div class="ev-sec" id="ev-registry"><h5>🎁 ${esc(reg.heading || 'Registry & funds')}</h5>${reg.note ? `<p style="margin-bottom:11px">${esc(reg.note)}</p>` : ''}<div class="ev-funds">${funds.map((f) => {
+        const got = +fundTotals[f.id] || 0, fg = +f.goal || 0, fpc = fg ? Math.min(100, Math.round(got / fg * 100)) : 0;
+        return `<div class="ev-fund"><div class="ef-h"><span class="ef-ic">${esc(f.icon || '🎁')}</span><b>${esc(f.title)}</b></div>${f.desc ? `<p>${esc(f.desc)}</p>` : ''}${fg ? `<div class="ef-bar"><span style="width:${fpc}%"></span></div><small>${ghs(got)} of ${ghs(fg)}</small>` : ''}<div class="ev-btn acc ef-btn" data-action="gift" data-fund="${esc(f.id)}">💛 Gift to this</div></div>`;
+      }).join('')}</div></div>` : ''}
       ${e.dressCode ? `<div class="ev-sec"><h5>👗 Dress code</h5><p>${esc(e.dressCode)}</p></div>` : ''}
       ${gallery.length ? `<div class="ev-sec" id="ev-gallery"><h5>📷 Gallery</h5><div class="ev-gallery">${gallery.map((g) => `<div class="ev-thumb" style="background-image:url('${g}')"></div>`).join('')}</div></div>` : ''}
       <div class="ev-actions" id="ev-rsvp">

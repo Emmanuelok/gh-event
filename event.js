@@ -21,12 +21,19 @@
   let state = null;   // local mode: full studio state
   let ev = null;      // the event design (both modes)
   let collected = 0;
+  let fundTotals = {};
   let payEnabled = false;
 
   const getCollected = () => mode === 'server' ? collected : (state.contributors || []).reduce((a, c) => a + (+c.paid || 0), 0);
+  const computeFundTotals = () => {
+    if (mode === 'server') return fundTotals;
+    const ft = {};
+    (state.contributors || []).forEach((c) => { if (c.fund) ft[c.fund] = (ft[c.fund] || 0) + (+c.paid || 0); });
+    return ft;
+  };
   function render() {
     D.applyTheme(page, ev.theme, ev.fontPair);
-    page.innerHTML = D.renderEventPage(ev, { collected: getCollected(), mode: 'guest' });
+    page.innerHTML = D.renderEventPage(ev, { collected: getCollected(), fundTotals: computeFundTotals(), mode: 'guest' });
   }
   const saveLocal = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
 
@@ -34,7 +41,7 @@
     if (mode === 'server') {
       setServerBanner();
       api.getPublic(SLUG).then((res) => {
-        ev = res.event || {}; ev.gallery = ev.gallery || []; collected = res.collected || 0; payEnabled = !!res.paystack;
+        ev = res.event || {}; ev.gallery = ev.gallery || []; collected = res.collected || 0; fundTotals = res.fundTotals || {}; payEnabled = !!res.paystack;
         render();
         if (new URLSearchParams(location.search).get('paid')) afterPaid();
       }).catch((e) => {
@@ -55,7 +62,7 @@
     }
   }
   function afterPaid() {
-    api.getPublic(SLUG).then((r) => { collected = r.collected || collected; render(); }).catch(() => {});
+    api.getPublic(SLUG).then((r) => { collected = r.collected || collected; fundTotals = r.fundTotals || fundTotals; render(); }).catch(() => {});
     open(`<div class="done"><div class="big">🎉</div><h3>Thank you!</h3><p>Your payment is being confirmed — the host will see it shortly.</p></div>`);
     setTimeout(close, 3200);
   }
@@ -71,6 +78,7 @@
     const a = e.target.closest('[data-action]'); if (!a) return;
     if (a.dataset.action === 'rsvp') openRsvp();
     else if (a.dataset.action === 'contribute') openContribute();
+    else if (a.dataset.action === 'gift') openContribute(a.dataset.fund);
   });
 
   /* ---- modal ---- */
@@ -117,23 +125,25 @@
   }
 
   /* ---- Contribute ---- */
-  function openContribute() {
+  function openContribute(fundId) {
     const c = ev.contribution || {};
-    open(`<h3>💛 ${esc(c.label || 'Contribute via MoMo')}</h3>
-      <p class="lead">${payEnabled ? 'Pay securely online, or send Mobile Money to the host and confirm below.' : 'Send Mobile Money to the host, then confirm here so it\'s tracked.'}</p>
+    const fund = fundId ? (((ev.registry && ev.registry.funds) || []).find((f) => f.id === fundId)) : null;
+    const fundLabel = fund ? fund.title : '';
+    open(`<h3>${fund ? '🎁 ' + esc(fund.title) : '💛 ' + esc(c.label || 'Contribute via MoMo')}</h3>
+      <p class="lead">${fund && fund.desc ? esc(fund.desc) + ' ' : ''}${payEnabled ? 'Pay securely online, or send Mobile Money to the host and confirm below.' : 'Send Mobile Money to the host, then confirm here so it\'s tracked.'}</p>
       <label>Your name</label><input id="dName" placeholder="e.g. Uncle Yaw" />
       <label>Amount (GHS)</label><input id="dAmt" type="number" placeholder="200" />
       ${payEnabled ? '<label>Email <span style="text-transform:none;font-weight:500">(for your receipt)</span></label><input id="dEmail" type="email" placeholder="you@example.com" />' : ''}
       <div class="err" id="dErr" style="display:none"></div>
       ${payEnabled ? '<button class="go" id="dPay">Pay online (MoMo / card)</button>' : ''}
-      <div class="momo-box">${payEnabled ? 'Or send' : 'Send'} Mobile Money to <b>${esc(c.momo || '024 000 0000')}</b><br><span class="dim small">${esc(ev.title)} · MTN / Telecel / AT MoMo</span></div>
+      <div class="momo-box">${payEnabled ? 'Or send' : 'Send'} Mobile Money to <b>${esc(c.momo || '024 000 0000')}</b><br><span class="dim small">${esc(ev.title)}${fundLabel ? ' · ' + esc(fundLabel) : ''} · MTN / Telecel / AT MoMo</span></div>
       <button class="go gold" id="dGo">I've sent it manually ✓</button>`);
     if (payEnabled) $('#dPay').addEventListener('click', () => {
       const name = $('#dName').value.trim(); const amt = +$('#dAmt').value || 0;
       if (!name) { $('#dName').focus(); return; }
       if (amt <= 0) { $('#dAmt').focus(); return; }
       $('#dPay').disabled = true;
-      api.payInit(SLUG, { name, email: ($('#dEmail') && $('#dEmail').value.trim()) || '', amount: amt })
+      api.payInit(SLUG, { name, email: ($('#dEmail') && $('#dEmail').value.trim()) || '', amount: amt, fund: fundId || '' })
         .then((r) => { if (r.authorization_url) window.location.href = r.authorization_url; else $('#dGo').click(); })
         .catch((e) => { showErr('#dErr', e.message || 'Could not start payment'); $('#dPay').disabled = false; });
     });
@@ -143,14 +153,14 @@
       if (amt <= 0) { $('#dAmt').focus(); return; }
       const done = () => {
         render();
-        open(`<div class="done"><div class="big">🎉</div><h3>Medaase, ${esc(name.split(' ')[0])}!</h3><p>Your ${ghs(amt)} gift is recorded. A receipt would be sent by SMS in the live product.</p></div>`);
+        open(`<div class="done"><div class="big">🎉</div><h3>Medaase, ${esc(name.split(' ')[0])}!</h3><p>Your ${ghs(amt)} gift${fundLabel ? ' to <b>' + esc(fundLabel) + '</b>' : ''} is recorded. A receipt would be sent by SMS in the live product.</p></div>`);
         setTimeout(close, 2800);
       };
       if (mode === 'server') {
         $('#dGo').disabled = true;
-        api.contribute(SLUG, { name, amount: amt, method: 'momo' }).then((r) => { collected = r.collected; done(); }).catch((e) => { showErr('#dErr', e.message || 'Could not record — try again'); $('#dGo').disabled = false; });
+        api.contribute(SLUG, { name, amount: amt, method: 'momo', fund: fundId || '' }).then((r) => { collected = r.collected; if (r.fundTotals) fundTotals = r.fundTotals; done(); }).catch((e) => { showErr('#dErr', e.message || 'Could not record — try again'); $('#dGo').disabled = false; });
       } else {
-        state.contributors.push({ id: gid(), name, sub: 'Guest · MoMo', pledge: amt, paid: amt });
+        state.contributors.push({ id: gid(), name, sub: 'Guest · MoMo' + (fundLabel ? ' · ' + fundLabel : ''), pledge: amt, paid: amt, fund: fundId || '' });
         saveLocal(); done();
       }
     });

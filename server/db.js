@@ -54,6 +54,7 @@ db.exec(`
     amount    REAL NOT NULL,
     method    TEXT,
     ref       TEXT,
+    fund      TEXT,
     status    TEXT NOT NULL DEFAULT 'recorded',
     created   INTEGER NOT NULL
   );
@@ -74,6 +75,7 @@ ensureColumn('users', 'reset_token', 'TEXT');
 ensureColumn('users', 'reset_exp', 'INTEGER');
 ensureColumn('rsvps', 'source', "TEXT NOT NULL DEFAULT 'link'");
 ensureColumn('contributions', 'email', 'TEXT');
+ensureColumn('contributions', 'fund', 'TEXT');
 
 const now = () => Date.now();
 
@@ -135,9 +137,9 @@ export function updateRsvp(id, f) {
 export const deleteRsvp = (id) => db.prepare('DELETE FROM rsvps WHERE id = ?').run(id);
 
 // ---- contributions ----
-export function addContribution(eventId, { name, email, amount, method, ref, status }) {
-  const r = db.prepare('INSERT INTO contributions (event_id, name, email, amount, method, ref, status, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-    .run(eventId, name, email || '', amount, method || 'momo', ref || '', status || 'recorded', now());
+export function addContribution(eventId, { name, email, amount, method, ref, status, fund }) {
+  const r = db.prepare('INSERT INTO contributions (event_id, name, email, amount, method, ref, fund, status, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .run(eventId, name, email || '', amount, method || 'momo', ref || '', fund || '', status || 'recorded', now());
   return getContributionById(Number(r.lastInsertRowid));
 }
 export const getContributionById = (id) => db.prepare('SELECT * FROM contributions WHERE id = ?').get(id);
@@ -147,5 +149,7 @@ export const setContributionStatusByRef = (ref, status) => db.prepare('UPDATE co
 export const deleteContribution = (id) => db.prepare('DELETE FROM contributions WHERE id = ?').run(id);
 export const sumContributions = (eventId) =>
   db.prepare("SELECT COALESCE(SUM(amount),0) AS total FROM contributions WHERE event_id = ? AND status IN ('recorded','paid')").get(eventId).total;
+export const sumContributionsByFund = (eventId) =>
+  db.prepare("SELECT fund, COALESCE(SUM(amount),0) AS total FROM contributions WHERE event_id = ? AND status IN ('recorded','paid') AND fund IS NOT NULL AND fund <> '' GROUP BY fund").all(eventId);
 
 export default db;

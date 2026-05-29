@@ -259,6 +259,20 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 .stack-row .sr-main input,.stack-row .sr-main textarea{width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
 .stack-row .sr-main textarea{min-height:52px;resize:vertical;line-height:1.5}
 .stack-row .mini-x{height:36px}
+.fund-row .fund-top{display:grid;grid-template-columns:46px 1fr;gap:6px}
+.fund-row .fund-ic{text-align:center;font-size:16px;padding-left:4px;padding-right:4px}
+
+/* ---- registry funds on the event page ---- */
+.ev-funds{display:grid;gap:10px}
+.ev-fund{border:1px solid #f0ece2;border-radius:13px;padding:13px}
+.ev-fund .ef-h{display:flex;align-items:center;gap:8px}
+.ev-fund .ef-ic{font-size:20px}
+.ev-fund .ef-h b{font-size:14.5px}
+.ev-fund>p{margin:6px 0 0;font-size:13px;color:var(--ink-2);line-height:1.5}
+.ev-fund .ef-bar{height:8px;background:#eee7da;border-radius:999px;overflow:hidden;margin:10px 0 4px}
+.ev-fund .ef-bar span{display:block;height:100%;background:var(--t-accent)}
+.ev-fund small{font-size:11.5px;color:var(--muted)}
+.ev-fund .ef-btn{margin-top:10px;padding:9px;font-size:13px;cursor:pointer}
 
 /* ---- cloud: account/publish modal + sync chip ---- */
 .cloud-chip{font-size:11.5px;font-weight:700;color:var(--muted);background:var(--bg);border:1px solid var(--line);padding:4px 10px;border-radius:999px;white-space:nowrap}

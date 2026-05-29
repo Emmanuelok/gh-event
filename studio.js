@@ -45,6 +45,14 @@
         ],
         rsvpDeadline: '2026-12-01', allowPlusOnes: true,
         contribution: { enabled: true, label: 'Send a gift via MoMo', momo: '024 000 0000', goal: 20000 },
+        registry: {
+          enabled: true, heading: 'Registry & funds',
+          note: 'Your presence is the greatest gift — but if you wish to bless us further:',
+          funds: [
+            { id: g(), icon: '🏝️', title: 'Honeymoon fund', desc: 'Help us toward our dream getaway.', goal: 8000 },
+            { id: g(), icon: '🏠', title: 'Our first home', desc: 'Towards setting up our new home together.', goal: 12000 },
+          ],
+        },
       },
       guests: [
         { id: g(), name: 'Auntie Akosua', phone: '024 111 2222', group: 'Family', status: 'yes', party: 2, note: 'VIP table' },
@@ -70,7 +78,7 @@
   }
   function blankState() {
     const s = seed();
-    Object.assign(s.event, { title: 'New event', subtitle: '', hosts: '', hashtag: '', story: '', cover: '', gallery: [], travel: [], faq: [], dressCode: '', mapNote: '', mapUrl: '', schedule: [{ time: '', label: '' }] });
+    Object.assign(s.event, { title: 'New event', subtitle: '', hosts: '', hashtag: '', story: '', cover: '', gallery: [], travel: [], faq: [], registry: { enabled: false, heading: 'Registry & funds', note: '', funds: [] }, dressCode: '', mapNote: '', mapUrl: '', schedule: [{ time: '', label: '' }] });
     s.event.date = new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 16);
     s.guests = []; s.contributors = []; s.vendors = [];
     return s;
@@ -83,10 +91,13 @@
   function migrate(s) { // ensure new fields exist on older saves — never inject demo content
     const base = seed().event;
     base.travel = []; base.faq = []; base.fontPair = '';
+    base.registry = { enabled: false, heading: 'Registry & funds', note: '', funds: [] };
     s.event = Object.assign({}, base, s.event);
     s.event.gallery = Array.isArray(s.event.gallery) ? s.event.gallery : [];
     s.event.travel = Array.isArray(s.event.travel) ? s.event.travel : [];
     s.event.faq = Array.isArray(s.event.faq) ? s.event.faq : [];
+    if (!s.event.registry || typeof s.event.registry !== 'object') s.event.registry = { enabled: false, heading: 'Registry & funds', note: '', funds: [] };
+    if (!Array.isArray(s.event.registry.funds)) s.event.registry.funds = [];
     if (!s.event.fontPair) s.event.fontPair = (THEMES[s.event.theme] || {}).font || 'classic';
     return s;
   }
@@ -129,7 +140,10 @@
     const wrap = $('#pvWrap');
     D.applyTheme(wrap, state.event.theme, state.event.fontPair);
     const collected = state.contributors.reduce((a, c) => a + (+c.paid || 0), 0);
-    wrap.innerHTML = D.renderEventPage(state.event, { collected: collected, mode: 'preview' });
+    const fundTotals = {};
+    state.contributors.forEach((c) => { if (c.fund) fundTotals[c.fund] = (fundTotals[c.fund] || 0) + (+c.paid || 0); });
+    remoteContribs.forEach((c) => { if (c.fund) fundTotals[c.fund] = (fundTotals[c.fund] || 0) + (+c.amount || 0); });
+    wrap.innerHTML = D.renderEventPage(state.event, { collected: collected, fundTotals: fundTotals, mode: 'preview' });
   }
 
   /* ============================================================
@@ -195,6 +209,7 @@
     buildSchedule();
     buildTravel();
     buildFaq();
+    buildRegistry();
     renderCover();
     renderGallery();
     syncFields();
@@ -229,6 +244,8 @@
     set('#fFont', e.fontPair); set('#fRsvp', e.rsvpDeadline); set('#fPlus', e.allowPlusOnes);
     set('#fContribOn', e.contribution.enabled); set('#fContribLabel', e.contribution.label);
     set('#fMomo', e.contribution.momo); set('#fGoal', e.contribution.goal);
+    const r = e.registry || {};
+    set('#fRegOn', r.enabled); set('#fRegHeading', r.heading); set('#fRegNote', r.note);
   }
   function buildSchedule() {
     const box = $('#schList'); const e = state.event; box.innerHTML = '';
@@ -274,13 +291,37 @@
     box.onclick = (ev) => { const d = ev.target.closest('[data-faqdel]'); if (d) { e.faq.splice(+d.dataset.faqdel, 1); buildFaq(); renderPreview(); touched(); } };
   }
   function addFaq() { const e = state.event; e.faq = e.faq || []; e.faq.push({ q: '', a: '' }); buildFaq(); touched(); }
+  function fundTitle(id) { if (!id) return ''; const f = ((state.event.registry && state.event.registry.funds) || []).find((x) => x.id === id); return f ? f.title : ''; }
+  function buildRegistry() {
+    const box = $('#regList'), e = state.event; const funds = (e.registry && e.registry.funds) || [];
+    box.innerHTML = '';
+    funds.forEach((f, i) => {
+      const row = ce('div', 'stack-row fund-row');
+      row.innerHTML = `<div class="sr-main">
+        <div class="fund-top"><input class="fund-ic" type="text" value="${esc(f.icon || '🎁')}" maxlength="2" data-ri="${i}" data-rk="icon" aria-label="Icon">
+          <input type="text" value="${esc(f.title)}" placeholder="Fund name (e.g. Honeymoon fund)" data-ri="${i}" data-rk="title"></div>
+        <input type="text" value="${esc(f.desc || '')}" placeholder="Short description (optional)" data-ri="${i}" data-rk="desc">
+        <input type="number" value="${f.goal || ''}" placeholder="Goal in GHS (optional)" data-ri="${i}" data-rk="goal"></div>
+        <button class="mini-x" data-regdel="${i}" title="Remove">✕</button>`;
+      box.appendChild(row);
+    });
+    const c = $('#regCount'); if (c) c.textContent = funds.length ? funds.length + (funds.length > 1 ? ' funds' : ' fund') : '';
+    box.oninput = (ev) => { const t = ev.target; if (t.dataset.ri != null) { const f = e.registry.funds[+t.dataset.ri]; f[t.dataset.rk] = t.dataset.rk === 'goal' ? (+t.value || 0) : t.value; renderPreview(); touched(); } };
+    box.onclick = (ev) => { const d = ev.target.closest('[data-regdel]'); if (d) { e.registry.funds.splice(+d.dataset.regdel, 1); buildRegistry(); renderPreview(); touched(); } };
+  }
+  function addFund() {
+    const e = state.event; e.registry = e.registry || { enabled: true, heading: 'Registry & funds', note: '', funds: [] };
+    e.registry.enabled = true; e.registry.funds = e.registry.funds || [];
+    e.registry.funds.push({ id: g(), icon: '🎁', title: '', desc: '', goal: 0 });
+    buildRegistry(); syncFields(); renderPreview(); touched();
+  }
 
   /* ============================================================
      GUESTS
      ============================================================ */
   // Link-captured responses are merged in for display only (kept out of saved state)
   function mapRsvp(r) { return { id: 'r' + r.id, sid: r.id, name: r.name, phone: r.phone || '', group: r.source === 'host' ? 'added' : 'via link', status: r.status, party: +r.party || 0, note: r.note || '', _remote: true }; }
-  function mapContrib(c) { return { id: 'c' + c.id, sid: c.id, name: c.name, sub: 'via link · ' + (c.method || 'momo'), pledge: +c.amount || 0, paid: +c.amount || 0, _remote: true }; }
+  function mapContrib(c) { const ft = fundTitle(c.fund); return { id: 'c' + c.id, sid: c.id, name: c.name, sub: 'via link · ' + (c.method || 'momo') + (ft ? ' → ' + ft : ''), pledge: +c.amount || 0, paid: +c.amount || 0, fund: c.fund || '', _remote: true }; }
   function allGuests() { return state.guests.concat(remoteRsvps.map(mapRsvp)); }
   function allContribs() { return state.contributors.concat(remoteContribs.map(mapContrib)); }
   function downloadCSV(filename, rows) {
@@ -479,6 +520,7 @@
     $('#schAdd').addEventListener('click', addSchedule);
     $('#travAdd').addEventListener('click', addTravel);
     $('#faqAdd').addEventListener('click', addFaq);
+    $('#regAdd').addEventListener('click', addFund);
     // section-nav anchors inside the live preview scroll within the frame
     $('#pvWrap').addEventListener('click', (e) => {
       const a = e.target.closest('.ev-nav a[href^="#ev-"]'); if (!a) return;
