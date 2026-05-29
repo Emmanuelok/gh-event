@@ -53,6 +53,10 @@
             { id: g(), icon: '🏠', title: 'Our first home', desc: 'Towards setting up our new home together.', goal: 12000 },
           ],
         },
+        questions: [
+          { id: g(), label: 'Meal choice', type: 'choice', options: ['Chicken', 'Fish', 'Vegetarian', 'Jollof & goat'] },
+          { id: g(), label: 'Any dietary needs or allergies?', type: 'short', options: [] },
+        ],
       },
       guests: [
         { id: g(), name: 'Auntie Akosua', phone: '024 111 2222', group: 'Family', status: 'yes', party: 2, note: 'VIP table' },
@@ -79,7 +83,7 @@
   }
   function blankState() {
     const s = seed();
-    Object.assign(s.event, { title: 'New event', subtitle: '', hosts: '', hashtag: '', story: '', cover: '', gallery: [], travel: [], faq: [], registry: { enabled: false, heading: 'Registry & funds', note: '', funds: [] }, dressCode: '', mapNote: '', mapUrl: '', schedule: [{ time: '', label: '' }] });
+    Object.assign(s.event, { title: 'New event', subtitle: '', hosts: '', hashtag: '', story: '', cover: '', gallery: [], travel: [], faq: [], registry: { enabled: false, heading: 'Registry & funds', note: '', funds: [] }, questions: [], dressCode: '', mapNote: '', mapUrl: '', schedule: [{ time: '', label: '' }] });
     s.event.date = new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 16);
     s.guests = []; s.contributors = []; s.vendors = [];
     return s;
@@ -93,12 +97,14 @@
     const base = seed().event;
     base.travel = []; base.faq = []; base.fontPair = '';
     base.registry = { enabled: false, heading: 'Registry & funds', note: '', funds: [] };
+    base.questions = [];
     s.event = Object.assign({}, base, s.event);
     s.event.gallery = Array.isArray(s.event.gallery) ? s.event.gallery : [];
     s.event.travel = Array.isArray(s.event.travel) ? s.event.travel : [];
     s.event.faq = Array.isArray(s.event.faq) ? s.event.faq : [];
     if (!s.event.registry || typeof s.event.registry !== 'object') s.event.registry = { enabled: false, heading: 'Registry & funds', note: '', funds: [] };
     if (!Array.isArray(s.event.registry.funds)) s.event.registry.funds = [];
+    if (!Array.isArray(s.event.questions)) s.event.questions = [];
     if (!s.event.fontPair) s.event.fontPair = (THEMES[s.event.theme] || {}).font || 'classic';
     s.invites = Object.assign(defaultInvites(), s.invites || {});
     return s;
@@ -212,6 +218,7 @@
     buildTravel();
     buildFaq();
     buildRegistry();
+    buildQuestions();
     renderCover();
     renderGallery();
     syncFields();
@@ -317,12 +324,59 @@
     e.registry.funds.push({ id: g(), icon: '🎁', title: '', desc: '', goal: 0 });
     buildRegistry(); syncFields(); renderPreview(); touched();
   }
+  const QUESTION_PRESETS = {
+    meal: { label: 'Meal choice', type: 'choice', options: ['Chicken', 'Fish', 'Vegetarian', 'Jollof & goat'] },
+    diet: { label: 'Any dietary needs or allergies?', type: 'short', options: [] },
+    song: { label: 'A song to get you on the dance floor?', type: 'short', options: [] },
+    events: { label: 'Which events will you join?', type: 'multi', options: ['Traditional rites', 'Church / ceremony', 'Reception'] },
+  };
+  function buildQuestions() {
+    const box = $('#qList'), e = state.event; const qs = e.questions || [];
+    box.innerHTML = '';
+    qs.forEach((q, i) => {
+      const row = ce('div', 'stack-row q-item');
+      row.innerHTML = `<div class="sr-main">
+        <input type="text" value="${esc(q.label)}" placeholder="Question (e.g. Meal choice)" data-qi="${i}" data-qk="label">
+        <div class="q-row2">
+          <select data-qi="${i}" data-qk="type">
+            <option value="short"${q.type === 'short' ? ' selected' : ''}>Short answer</option>
+            <option value="choice"${q.type === 'choice' ? ' selected' : ''}>Single choice</option>
+            <option value="multi"${q.type === 'multi' ? ' selected' : ''}>Multi-select</option></select>
+          <input type="text" value="${esc((q.options || []).join(', '))}" placeholder="Options, comma-separated" data-qi="${i}" data-qk="options"${q.type === 'short' ? ' disabled' : ''}></div>
+      </div><button class="mini-x" data-qdel="${i}" title="Remove">✕</button>`;
+      box.appendChild(row);
+    });
+    const c = $('#qCount'); if (c) c.textContent = qs.length ? qs.length + (qs.length > 1 ? ' questions' : ' question') : '';
+    box.oninput = (ev) => { const t = ev.target; if (t.dataset.qi == null) return; const q = e.questions[+t.dataset.qi]; if (t.dataset.qk === 'options') q.options = t.value.split(',').map((s) => s.trim()).filter(Boolean); else q[t.dataset.qk] = t.value; touched(); };
+    box.onchange = (ev) => { const t = ev.target; if (t.dataset.qk === 'type' && t.dataset.qi != null) { e.questions[+t.dataset.qi].type = t.value; buildQuestions(); touched(); } };
+    box.onclick = (ev) => { const d = ev.target.closest('[data-qdel]'); if (d) { e.questions.splice(+d.dataset.qdel, 1); buildQuestions(); touched(); } };
+  }
+  function addQuestion(preset) {
+    const e = state.event; e.questions = e.questions || [];
+    const p = preset && QUESTION_PRESETS[preset];
+    const q = p ? { label: p.label, type: p.type, options: (p.options || []).slice() } : { label: '', type: 'short', options: [] };
+    q.id = g();
+    e.questions.push(q); buildQuestions(); touched();
+  }
 
   /* ============================================================
      GUESTS
      ============================================================ */
   // Link-captured responses are merged in for display only (kept out of saved state)
-  function mapRsvp(r) { return { id: 'r' + r.id, sid: r.id, name: r.name, phone: r.phone || '', group: r.source === 'host' ? 'added' : 'via link', status: r.status, party: +r.party || 0, note: r.note || '', _remote: true }; }
+  function mapRsvp(r) {
+    let extra = '';
+    try {
+      const m = r.meta ? JSON.parse(r.meta) : null;
+      if (m) {
+        const parts = [];
+        if (m.answers) (state.event.questions || []).forEach((q) => { const v = m.answers[q.id]; if (v && (Array.isArray(v) ? v.length : true)) parts.push(q.label + ': ' + (Array.isArray(v) ? v.join(', ') : v)); });
+        if (Array.isArray(m.partyNames) && m.partyNames.length) parts.push('with ' + m.partyNames.join(', '));
+        extra = parts.join(' · ');
+      }
+    } catch (e) {}
+    const note = [r.note, extra].filter(Boolean).join(' · ');
+    return { id: 'r' + r.id, sid: r.id, name: r.name, phone: r.phone || '', group: r.source === 'host' ? 'added' : 'via link', status: r.status, party: +r.party || 0, note, _remote: true };
+  }
   function mapContrib(c) { const ft = fundTitle(c.fund); return { id: 'c' + c.id, sid: c.id, name: c.name, sub: 'via link · ' + (c.method || 'momo') + (ft ? ' → ' + ft : ''), pledge: +c.amount || 0, paid: +c.amount || 0, fund: c.fund || '', _remote: true }; }
   function allGuests() { return state.guests.concat(remoteRsvps.map(mapRsvp)); }
   function allContribs() { return state.contributors.concat(remoteContribs.map(mapContrib)); }
@@ -626,6 +680,8 @@
     $('#travAdd').addEventListener('click', addTravel);
     $('#faqAdd').addEventListener('click', addFaq);
     $('#regAdd').addEventListener('click', addFund);
+    $('#qAdd').addEventListener('click', () => addQuestion());
+    $('#qPresets').addEventListener('click', (e) => { const b = e.target.closest('[data-qadd]'); if (b) addQuestion(b.dataset.qadd); });
     // section-nav anchors inside the live preview scroll within the frame
     $('#pvWrap').addEventListener('click', (e) => {
       const a = e.target.closest('.ev-nav a[href^="#ev-"]'); if (!a) return;

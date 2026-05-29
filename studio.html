@@ -155,6 +155,21 @@
           </div>
 
           <div class="ed-sec">
+            <div class="ed-head"><span class="ic">📝</span> RSVP questions <span class="dim small" id="qCount"></span><span class="chev">▾</span></div>
+            <div class="ed-body">
+              <p class="dim small" style="margin:0 0 9px">Ask guests for meal choices, dietary needs, song requests — answers land in your Guests list.</p>
+              <div class="q-presets" id="qPresets">
+                <button type="button" class="chiplet" data-qadd="meal">+ Meal choice</button>
+                <button type="button" class="chiplet" data-qadd="diet">+ Dietary needs</button>
+                <button type="button" class="chiplet" data-qadd="song">+ Song request</button>
+                <button type="button" class="chiplet" data-qadd="events">+ Which events?</button>
+              </div>
+              <div id="qList"></div>
+              <button class="add-row" id="qAdd">+ Add a custom question</button>
+            </div>
+          </div>
+
+          <div class="ed-sec">
             <div class="ed-head"><span class="ic">🎁</span> Registry &amp; funds <span class="dim small" id="regCount"></span><span class="chev">▾</span></div>
             <div class="ed-body">
               <div class="fld"><label class="toggle"><input type="checkbox" id="fRegOn" data-bind="registry.enabled" /> <span>Show a registry of funds on the page</span></label></div>

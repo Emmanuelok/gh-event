@@ -44,6 +44,7 @@ db.exec(`
     party     INTEGER NOT NULL DEFAULT 1,
     note      TEXT,
     source    TEXT NOT NULL DEFAULT 'link',
+    meta      TEXT,
     created   INTEGER NOT NULL
   );
   CREATE TABLE IF NOT EXISTS contributions (
@@ -74,6 +75,7 @@ ensureColumn('users', 'verify_token', 'TEXT');
 ensureColumn('users', 'reset_token', 'TEXT');
 ensureColumn('users', 'reset_exp', 'INTEGER');
 ensureColumn('rsvps', 'source', "TEXT NOT NULL DEFAULT 'link'");
+ensureColumn('rsvps', 'meta', 'TEXT');
 ensureColumn('contributions', 'email', 'TEXT');
 ensureColumn('contributions', 'fund', 'TEXT');
 
@@ -121,9 +123,9 @@ export const deleteEvent = (id) => db.prepare('DELETE FROM events WHERE id = ?')
 export const slugExists = (slug) => !!db.prepare('SELECT 1 FROM events WHERE slug = ?').get(slug);
 
 // ---- rsvps ----
-export function addRsvp(eventId, { name, phone, status, party, note, source }) {
-  const r = db.prepare('INSERT INTO rsvps (event_id, name, phone, status, party, note, source, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-    .run(eventId, name, phone || '', status || 'yes', party || 1, note || '', source || 'link', now());
+export function addRsvp(eventId, { name, phone, status, party, note, source, meta }) {
+  const r = db.prepare('INSERT INTO rsvps (event_id, name, phone, status, party, note, source, meta, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .run(eventId, name, phone || '', status || 'yes', party || 1, note || '', source || 'link', meta || '', now());
   return getRsvpById(Number(r.lastInsertRowid));
 }
 export const getRsvpById = (id) => db.prepare('SELECT * FROM rsvps WHERE id = ?').get(id);

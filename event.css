@@ -37,6 +37,12 @@ body { overflow: auto !important; background: #e9e3d6; display: block; }
 .go.gold { background: var(--gold); color: #3a2a05; }
 .momo-box { background: var(--bg); border: 1px dashed var(--line); border-radius: 11px; padding: 13px 15px; margin: 4px 0 4px; }
 .momo-box b { font-size: 18px; color: var(--green-d); letter-spacing: .02em; }
+.qmulti { display: flex; flex-direction: column; gap: 7px; }
+.qchk { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.qchk input[type=checkbox] { width: 19px; height: 19px; accent-color: var(--green); cursor: pointer; flex: none; }
+.qseg { flex-wrap: wrap; }
+.qseg button { flex: 1 1 40%; }
+.rpn { margin-bottom: 7px; }
 .done { text-align: center; padding: 14px 4px; }
 .done .big { font-size: 44px; }
 .done h3 { margin: 8px 0 6px; }

@@ -90,25 +90,59 @@
   const showErr = (id, msg) => { const er = $(id); er.textContent = msg; er.style.display = 'block'; };
 
   /* ---- RSVP ---- */
+  function summarizeAnswers(answers, questions, partyNames) {
+    const parts = [];
+    (questions || []).forEach((q) => { const v = answers[q.id]; if (v && (Array.isArray(v) ? v.length : true)) parts.push(q.label + ': ' + (Array.isArray(v) ? v.join(', ') : v)); });
+    if (partyNames && partyNames.length) parts.push('with ' + partyNames.join(', '));
+    return parts.join(' · ');
+  }
   function openRsvp() {
     let status = 'yes', party = ev.allowPlusOnes ? 2 : 1;
+    const questions = ev.questions || [];
     open(`<h3>RSVP — ${esc(ev.title)}</h3>
       <p class="lead">Takes 20 seconds. No account needed.</p>
       <label>Your name</label><input id="rName" placeholder="e.g. Akosua Mensah" />
       <label>Will you join us?</label>
       <div class="seg" id="rSeg"><button class="on" data-v="yes">Yes 🎉</button><button data-v="maybe">Maybe</button><button data-v="no">Can't make it</button></div>
       ${ev.allowPlusOnes ? `<label>How many in your party?</label><div class="step" id="rStep"><button data-s="-1">−</button><span id="rParty">${party}</span><button data-s="1">+</button></div>` : ''}
+      <div id="rPartyNames"></div>
+      <div id="rQuestions"></div>
       <label>Phone <span style="text-transform:none;font-weight:500">(so the host can reach you)</span></label><input id="rPhone" placeholder="024…" />
       <label>Note <span style="text-transform:none;font-weight:500">(optional)</span></label><input id="rNote" placeholder="Congratulations! 💍" />
       <div class="err" id="rErr" style="display:none"></div>
       <button class="go" id="rGo">Send RSVP</button>`);
+    const renderPartyNames = () => {
+      const box = $('#rPartyNames'); if (!box) return;
+      if (status === 'yes' && ev.allowPlusOnes && party > 1) {
+        let h = '<label>Names of your guests <span style="text-transform:none;font-weight:500">(optional)</span></label>';
+        for (let i = 1; i < party; i++) h += `<input class="rpn" placeholder="Guest ${i + 1} name" />`;
+        box.innerHTML = h;
+      } else box.innerHTML = '';
+    };
+    const renderQuestions = () => {
+      const box = $('#rQuestions'); if (!box) return;
+      if (status !== 'yes' || !questions.length) { box.innerHTML = ''; return; }
+      box.innerHTML = questions.map((q) => {
+        if (q.type === 'choice') return `<label>${esc(q.label)}</label><div class="seg qseg" data-q="${esc(q.id)}">${(q.options || []).map((o, oi) => `<button type="button" class="${oi === 0 ? 'on' : ''}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+        if (q.type === 'multi') return `<label>${esc(q.label)}</label><div class="qmulti" data-q="${esc(q.id)}">${(q.options || []).map((o) => `<label class="qchk"><input type="checkbox" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>`;
+        return `<label>${esc(q.label)}</label><input class="qshort" data-q="${esc(q.id)}" placeholder="Your answer" />`;
+      }).join('');
+      box.querySelectorAll('.qseg').forEach((seg) => seg.addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; Array.from(seg.children).forEach((x) => x.classList.toggle('on', x === b)); }));
+    };
     const seg = $('#rSeg');
-    seg.addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; status = b.dataset.v; Array.from(seg.children).forEach((x) => x.classList.toggle('on', x === b)); });
+    seg.addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; status = b.dataset.v; Array.from(seg.children).forEach((x) => x.classList.toggle('on', x === b)); renderPartyNames(); renderQuestions(); });
     const stp = $('#rStep');
-    if (stp) stp.addEventListener('click', (e) => { const b = e.target.closest('[data-s]'); if (!b) return; party = Math.max(1, Math.min(20, party + (+b.dataset.s))); $('#rParty').textContent = party; });
+    if (stp) stp.addEventListener('click', (e) => { const b = e.target.closest('[data-s]'); if (!b) return; party = Math.max(1, Math.min(20, party + (+b.dataset.s))); $('#rParty').textContent = party; renderPartyNames(); });
     $('#rGo').addEventListener('click', () => {
       const name = $('#rName').value.trim(); if (!name) { $('#rName').focus(); return; }
-      const payload = { name, phone: $('#rPhone').value.trim(), status, party: status === 'yes' ? party : 0, note: $('#rNote').value.trim() };
+      const answers = {};
+      if (status === 'yes') questions.forEach((q) => {
+        if (q.type === 'choice') { const sel = document.querySelector(`#rQuestions .qseg[data-q="${q.id}"] .on`); if (sel) answers[q.id] = sel.dataset.v; }
+        else if (q.type === 'multi') { const vals = Array.from(document.querySelectorAll(`#rQuestions .qmulti[data-q="${q.id}"] input:checked`)).map((x) => x.value); if (vals.length) answers[q.id] = vals; }
+        else { const inp = document.querySelector(`#rQuestions .qshort[data-q="${q.id}"]`); if (inp && inp.value.trim()) answers[q.id] = inp.value.trim(); }
+      });
+      const partyNames = Array.from(document.querySelectorAll('#rPartyNames .rpn')).map((x) => x.value.trim()).filter(Boolean);
+      const payload = { name, phone: $('#rPhone').value.trim(), status, party: status === 'yes' ? party : 0, note: $('#rNote').value.trim(), answers, partyNames };
       const done = () => {
         open(`<div class="done"><div class="big">✅</div><h3>Thank you, ${esc(name.split(' ')[0])}!</h3><p>Your RSVP is in${status === 'yes' ? ` for ${payload.party}` : ''}. ${status === 'yes' ? 'The host will be in touch before the day.' : 'We\'ll miss you!'}</p></div>`);
         setTimeout(close, 2600);
@@ -117,10 +151,12 @@
         $('#rGo').disabled = true;
         api.rsvp(SLUG, payload).then(done).catch((e) => { showErr('#rErr', e.message || 'Could not send — try again'); $('#rGo').disabled = false; });
       } else {
-        state.guests.push({ id: gid(), name, phone: payload.phone, group: 'Guest (RSVP)', status, party: payload.party, note: payload.note, source: 'rsvp' });
+        const sum = summarizeAnswers(answers, questions, partyNames);
+        state.guests.push({ id: gid(), name, phone: payload.phone, group: 'Guest (RSVP)', status, party: payload.party, note: [payload.note, sum].filter(Boolean).join(' · '), source: 'rsvp' });
         saveLocal(); done();
       }
     });
+    renderPartyNames(); renderQuestions();
     $('#rName').focus();
   }
 
