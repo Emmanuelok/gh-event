@@ -74,6 +74,7 @@
         { id: g(), name: 'Kojo Studios', cat: 'Photographer', total: 2500, paid: 1000 },
         { id: g(), name: 'Golden Tulip', cat: 'Venue', total: 4000, paid: 4000 },
       ],
+      invites: defaultInvites(),
     };
   }
   function blankState() {
@@ -99,6 +100,7 @@
     if (!s.event.registry || typeof s.event.registry !== 'object') s.event.registry = { enabled: false, heading: 'Registry & funds', note: '', funds: [] };
     if (!Array.isArray(s.event.registry.funds)) s.event.registry.funds = [];
     if (!s.event.fontPair) s.event.fontPair = (THEMES[s.event.theme] || {}).font || 'classic';
+    s.invites = Object.assign(defaultInvites(), s.invites || {});
     return s;
   }
   let saveT;
@@ -477,7 +479,7 @@
   let cmds = [], cmdSel = 0;
   function buildCmds() {
     cmds = [];
-    [['dashboard', '📊', 'Dashboard'], ['design', '🎨', 'Design event'], ['guests', '👥', 'Guests & RSVP'], ['money', '💛', 'Money & ledger']]
+    [['dashboard', '📊', 'Dashboard'], ['design', '🎨', 'Design event'], ['guests', '👥', 'Guests & RSVP'], ['invite', '✉️', 'Invite guests'], ['money', '💛', 'Money & ledger']]
       .forEach(([id, ic, label]) => cmds.push({ g: 'Go to', ic, label, run: () => switchTab(id) }));
     const click = (id) => { const b = $(id); if (b) b.click(); };
     cmds.push({ g: 'Action', ic: '🔗', label: 'Publish / get share link', run: () => click('#btnPublish') });
@@ -498,12 +500,115 @@
   }
 
   /* ============================================================
+     INVITE — WhatsApp / SMS / copy invitations (no paid API)
+     ============================================================ */
+  function defaultInvites() {
+    return {
+      active: 'invitation',
+      invitation: "You're warmly invited to {event}! 🎉\n\n🗓️ {date}\n📍 {venue}\n\nKindly RSVP and see all the details here:\n{link}\n\nWe can't wait to celebrate with you. 💚",
+      reminder: "Hello {name}! 💛 A gentle reminder that {event} is almost here — {date} at {venue}.\n\nPlease RSVP if you haven't yet so we can plan well:\n{link}\n\nAkpe / Medaase!",
+      thanks: "Medaase, {name}! 🙏 Thank you for celebrating {event} with us — it meant the world to have you there. 💚",
+    };
+  }
+  function waPhone(p) {
+    let d = String(p || '').replace(/\D/g, ''); if (!d) return '';
+    if (d.startsWith('233')) return d;
+    if (d.startsWith('0')) return '233' + d.slice(1);
+    return d.length <= 9 ? '233' + d : d;
+  }
+  function shareLink() { return (window.__cloud && window.__cloud.getLink && window.__cloud.getLink()) || ''; }
+  function fillTemplate(tpl, g) {
+    const e = state.event, link = shareLink() || '[publish your event to get the link]';
+    return String(tpl || '')
+      .replace(/\{name\}/g, g ? (g.name || '').split(' ')[0] : 'there')
+      .replace(/\{event\}/g, e.title || 'our event')
+      .replace(/\{date\}/g, niceDate(e.date))
+      .replace(/\{venue\}/g, [e.venue, e.city].filter(Boolean).join(', ') || 'the venue')
+      .replace(/\{link\}/g, link);
+  }
+  function renderInvite() {
+    const root = $('#inviteRoot'); if (!root) return;
+    const inv = state.invites || (state.invites = defaultInvites());
+    const active = inv.active || 'invitation';
+    const link = shareLink();
+    const TPLS = [['invitation', '✉️ Invitation'], ['reminder', '🔔 Reminder'], ['thanks', '🙏 Thank-you']];
+    root.innerHTML = `
+      <div class="tab-h"><h2>✉️ Invitations &amp; messaging</h2><span class="pill-tip">WhatsApp-first · no app needed</span></div>
+      <p class="sub">Write once, send personally. Durbar drops each guest's name and your event details into a WhatsApp, SMS or copyable message — with a link they tap to RSVP.</p>
+      <div class="kpis" id="invKpis"></div>
+      <div class="two">
+        <div class="panel">
+          <h3>1 · Your share link</h3>
+          ${link
+        ? `<p class="dim small">Anyone with this link opens your event, RSVPs and contributes — no app, no login.</p>
+               <div class="share-link"><input id="invLink" readonly value="${esc(link)}"><button class="btn btn-pri" id="invCopyLink">Copy</button></div>
+               <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gold" id="invShareWa">📲 Share to WhatsApp</button><a class="btn" href="${esc(link)}" target="_blank">Open page →</a></div>`
+        : `<p class="dim small">Publish your event to mint a public link you can send to guests.</p><button class="btn btn-pri" id="invPublish">🔗 Publish now</button>`}
+        </div>
+        <div class="panel">
+          <h3>2 · Your message</h3>
+          <div class="inv-tabs" id="invTabs">${TPLS.map(([k, l]) => `<button data-tpl="${k}" class="${k === active ? 'on' : ''}">${l}</button>`).join('')}</div>
+          <textarea id="invMsg" class="inv-msg">${esc(inv[active] || '')}</textarea>
+          <div class="merge-hint">Auto-filled tags: <code>{name}</code> <code>{event}</code> <code>{date}</code> <code>{venue}</code> <code>{link}</code></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>3 · Send to your guests</h3><span class="dim small">Sending or copying marks a guest “invited”.</span></div>
+        <table class="tbl"><thead><tr><th>Guest</th><th>RSVP</th><th>Reach out</th><th>Invited</th></tr></thead><tbody id="invBody"></tbody></table>
+      </div>`;
+    $('#invTabs').onclick = (e) => { const b = e.target.closest('[data-tpl]'); if (!b) return; inv.active = b.dataset.tpl; save(); renderInvite(); };
+    const ta = $('#invMsg'); if (ta) ta.addEventListener('input', () => { inv[inv.active || 'invitation'] = ta.value; touched(); });
+    const cl = $('#invCopyLink'); if (cl) cl.onclick = () => { if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => toast('Link copied')).catch(() => {}); };
+    const sw = $('#invShareWa'); if (sw) sw.onclick = () => window.open('https://wa.me/?text=' + encodeURIComponent(fillTemplate(inv[active], null)), '_blank');
+    const pb = $('#invPublish'); if (pb) pb.onclick = () => $('#btnPublish').click();
+    renderInviteList();
+    renderInviteKpis();
+  }
+  function renderInviteKpis() {
+    const box = $('#invKpis'); if (!box) return;
+    const gs = state.guests || [];
+    const invited = gs.filter((g) => g.invited).length;
+    const responded = gs.filter((g) => ['yes', 'no', 'maybe'].includes(g.status)).length;
+    box.innerHTML = kpi('Guests', gs.length) + kpi('Invited', invited, '', invited ? 'good' : '') +
+      kpi('Responded', responded, '', 'good') + kpi('Yet to invite', Math.max(0, gs.length - invited), '', 'warn');
+    animKpis('#invKpis');
+  }
+  function renderInviteList() {
+    const body = $('#invBody'); if (!body) return;
+    const gs = (state.guests || []).slice().sort((a, b) => (a.invited ? 1 : 0) - (b.invited ? 1 : 0));
+    body.innerHTML = gs.length ? gs.map((g) => {
+      const ph = (g.phone || '').replace(/\D/g, '');
+      return `<tr>
+        <td><b>${esc(g.name)}</b><br><span class="dim">${esc(g.phone || 'no phone')}${g.group ? ' · ' + esc(g.group) : ''}</span></td>
+        <td><span class="tag ${g.status}">${esc(g.status)}</span></td>
+        <td class="inv-acts">
+          <button class="btn btn-sm" data-iact="wa" data-id="${g.id}">WhatsApp</button>
+          ${ph ? `<button class="btn btn-sm" data-iact="sms" data-id="${g.id}">SMS</button>` : ''}
+          <button class="btn btn-sm" data-iact="copy" data-id="${g.id}">Copy</button></td>
+        <td><label class="inv-check"><input type="checkbox" data-iact="toggle" data-id="${g.id}" ${g.invited ? 'checked' : ''}></label></td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="4"><div class="empty">No guests yet — add them in the <b>Guests</b> tab, then invite them here.</div></td></tr>`;
+    body.onclick = (e) => {
+      const b = e.target.closest('[data-iact]'); if (!b) return;
+      const g = state.guests.find((x) => x.id === b.dataset.id); if (!g) return;
+      const act = b.dataset.iact, msg = $('#invMsg') ? $('#invMsg').value : '';
+      if (act === 'toggle') { g.invited = e.target.checked; save(); renderInviteKpis(); return; }
+      const text = fillTemplate(msg, g);
+      if (act === 'wa') { const p = waPhone(g.phone); window.open(p ? `https://wa.me/${p}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }
+      else if (act === 'sms') { window.open(`sms:${(g.phone || '').replace(/\s+/g, '')}?&body=${encodeURIComponent(text)}`); }
+      else if (act === 'copy') { if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast('Invite copied')).catch(() => toast('Copy failed')); }
+      if (!g.invited) { g.invited = true; save(); const cb = body.querySelector(`[data-iact="toggle"][data-id="${g.id}"]`); if (cb) cb.checked = true; renderInviteKpis(); }
+    };
+  }
+
+  /* ============================================================
      WIRING
      ============================================================ */
   function switchTab(name) {
     $$('.nav-i').forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
     $$('.tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === name));
     if (name === 'guests') renderGuests();
+    if (name === 'invite') renderInvite();
     if (name === 'money') renderMoney();
     if (name === 'dashboard') renderDash();
     if (name === 'design') renderPreview();

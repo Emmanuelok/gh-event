@@ -82,6 +82,7 @@
   window.__cloud = {
     deleteGuest: async (id) => { if (!eventId) return; try { await api.del('/api/events/' + eventId + '/guests/' + id); rsvps = rsvps.filter((r) => r.id !== id); pushRemote(); toast('Response removed'); } catch (e) {} },
     deleteContribution: async (id) => { if (!eventId) return; try { await api.del('/api/events/' + eventId + '/contributions/' + id); contribs = contribs.filter((c) => c.id !== id); pushRemote(); toast('Contribution removed'); } catch (e) {} },
+    getLink: () => (slug ? location.origin + '/event.html?e=' + slug : ''),
   };
 
   /* ---- modal ---- */

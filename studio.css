@@ -262,6 +262,19 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 .fund-row .fund-top{display:grid;grid-template-columns:46px 1fr;gap:6px}
 .fund-row .fund-ic{text-align:center;font-size:16px;padding-left:4px;padding-right:4px}
 
+/* ---- invite tab ---- */
+.inv-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.inv-tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-weight:700;font-size:13px;color:var(--ink-2);transition:.13s}
+.inv-tabs button:hover{border-color:var(--green)}
+.inv-tabs button.on{background:var(--green);color:#fff;border-color:var(--green)}
+.inv-msg{width:100%;min-height:148px;padding:12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;line-height:1.55;resize:vertical;color:var(--ink)}
+.inv-msg:focus{outline:0;border-color:var(--green);box-shadow:0 0 0 3px rgba(11,110,79,.12)}
+.merge-hint{font-size:12px;color:var(--muted);margin-top:8px}
+.merge-hint code{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:11.5px}
+.inv-acts{display:flex;gap:6px;flex-wrap:wrap}
+.inv-check{display:inline-flex;align-items:center}
+.inv-check input{width:20px;height:20px;accent-color:var(--green);cursor:pointer}
+
 /* ---- registry funds on the event page ---- */
 .ev-funds{display:grid;gap:10px}
 .ev-fund{border:1px solid #f0ece2;border-radius:13px;padding:13px}
