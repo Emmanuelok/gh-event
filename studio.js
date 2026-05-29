@@ -79,6 +79,7 @@
         { id: g(), name: 'Golden Tulip', cat: 'Venue', total: 4000, paid: 4000 },
       ],
       invites: defaultInvites(),
+      seating: { tables: [{ id: g(), name: 'Top table', capacity: 8 }, { id: g(), name: 'Family', capacity: 10 }, { id: g(), name: 'Friends', capacity: 10 }], assign: {} },
     };
   }
   function blankState() {
@@ -86,6 +87,7 @@
     Object.assign(s.event, { title: 'New event', subtitle: '', hosts: '', hashtag: '', story: '', cover: '', gallery: [], travel: [], faq: [], registry: { enabled: false, heading: 'Registry & funds', note: '', funds: [] }, questions: [], dressCode: '', mapNote: '', mapUrl: '', schedule: [{ time: '', label: '' }] });
     s.event.date = new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 16);
     s.guests = []; s.contributors = []; s.vendors = [];
+    s.seating = { tables: [], assign: {} };
     return s;
   }
 
@@ -107,6 +109,8 @@
     if (!Array.isArray(s.event.questions)) s.event.questions = [];
     if (!s.event.fontPair) s.event.fontPair = (THEMES[s.event.theme] || {}).font || 'classic';
     s.invites = Object.assign(defaultInvites(), s.invites || {});
+    if (!s.seating || !Array.isArray(s.seating.tables)) s.seating = { tables: [], assign: {} };
+    s.seating.assign = s.seating.assign || {};
     return s;
   }
   let saveT;
@@ -533,7 +537,7 @@
   let cmds = [], cmdSel = 0;
   function buildCmds() {
     cmds = [];
-    [['dashboard', '📊', 'Dashboard'], ['design', '🎨', 'Design event'], ['guests', '👥', 'Guests & RSVP'], ['invite', '✉️', 'Invite guests'], ['money', '💛', 'Money & ledger']]
+    [['dashboard', '📊', 'Dashboard'], ['design', '🎨', 'Design event'], ['guests', '👥', 'Guests & RSVP'], ['invite', '✉️', 'Invite guests'], ['seating', '🪑', 'Seating plan'], ['money', '💛', 'Money & ledger']]
       .forEach(([id, ic, label]) => cmds.push({ g: 'Go to', ic, label, run: () => switchTab(id) }));
     const click = (id) => { const b = $(id); if (b) b.click(); };
     cmds.push({ g: 'Action', ic: '🔗', label: 'Publish / get share link', run: () => click('#btnPublish') });
@@ -656,6 +660,61 @@
   }
 
   /* ============================================================
+     SEATING — tables + tap / auto-by-group assignment (state-level)
+     ============================================================ */
+  function seatData() { return state.seating || (state.seating = { tables: [], assign: {} }); }
+  function renderSeating() {
+    const root = $('#seatRoot'); if (!root) return;
+    const seat = seatData(), tables = seat.tables, assign = seat.assign;
+    const attending = allGuests().filter((x) => x.status === 'yes');
+    const seatedIn = (tid) => attending.filter((x) => assign[x.id] === tid);
+    const unassigned = attending.filter((x) => !assign[x.id] || !tables.some((t) => t.id === assign[x.id]));
+    root.innerHTML = `
+      <div class="tab-h"><h2>🪑 Seating plan</h2><span class="pill-tip">RSVP “yes” only · saves with your event</span></div>
+      <p class="sub">Arrange your tables. Assign each guest, or let Durbar seat everyone by their group in one tap.</p>
+      <div class="kpis" id="seatKpis"></div>
+      <div class="seat-bar"><button class="btn btn-pri" id="seatAdd">+ Add table</button><button class="btn" id="seatAuto">✨ Auto-seat by group</button>${Object.keys(assign).length ? '<button class="btn" id="seatClear">Clear all seats</button>' : ''}</div>
+      <div class="seat-grid" id="seatGrid">${tables.length ? tables.map((t) => {
+        const seated = seatedIn(t.id), over = seated.length > (+t.capacity || 0);
+        return `<div class="seat-table">
+          <div class="st-h"><input class="st-name" value="${esc(t.name)}" data-tid="${t.id}" data-tk="name" aria-label="Table name"><button class="mini-x" data-tdel="${t.id}" title="Remove table">✕</button></div>
+          <div class="st-meta"><span class="st-count ${over ? 'over' : ''}">${seated.length} seated</span> · seats <input class="st-capn" type="number" min="1" value="${+t.capacity || 0}" data-tid="${t.id}" data-tk="capacity"></div>
+          <div class="st-guests">${seated.length ? seated.map((gu) => `<div class="st-g"><span>${esc(gu.name)}</span><button class="st-rm" data-unseat="${gu.id}" title="Unseat">✕</button></div>`).join('') : '<div class="st-empty">No one seated yet</div>'}</div>
+        </div>`;
+      }).join('') : '<div class="empty">No tables yet — add your first, or hit “Auto-seat by group”.</div>'}</div>
+      <div class="panel"><div class="ph"><h3>Unassigned</h3><span class="dim small">${unassigned.length} guest${unassigned.length === 1 ? '' : 's'}</span></div>
+        <div class="seat-pool" id="seatPool">${unassigned.length ? unassigned.map((gu) => `<div class="pool-g"><span><b>${esc(gu.name)}</b> <span class="dim">${esc(gu.group || '')}</span></span>${tables.length ? `<select class="pool-sel" data-seat="${gu.id}"><option value="">Seat at…</option>${tables.map((t) => `<option value="${t.id}">${esc(t.name)}</option>`).join('')}</select>` : ''}</div>`).join('') : '<div class="empty">Everyone with a “yes” has a seat. 🎉</div>'}</div>
+      </div>`;
+    const seatedCount = attending.length - unassigned.length;
+    $('#seatKpis').innerHTML = kpi('Tables', tables.length) + kpi('Seated', seatedCount, '', seatedCount ? 'good' : '') +
+      kpi('Unseated', unassigned.length, '', unassigned.length ? 'warn' : '') + kpi('Attending', attending.length);
+    animKpis('#seatKpis');
+    $('#seatAdd').onclick = () => { tables.push({ id: g(), name: 'Table ' + (tables.length + 1), capacity: 8 }); save(); renderSeating(); };
+    $('#seatAuto').onclick = autoSeat;
+    const sc = $('#seatClear'); if (sc) sc.onclick = () => { seat.assign = {}; save(); renderSeating(); toast('Seats cleared'); };
+    $('#seatGrid').oninput = (e) => { const t = e.target.closest('[data-tid]'); if (!t) return; const tb = tables.find((x) => x.id === t.dataset.tid); if (tb) { tb[t.dataset.tk] = t.dataset.tk === 'capacity' ? (+t.value || 0) : t.value; save(); } };
+    $('#seatGrid').onclick = (e) => {
+      const del = e.target.closest('[data-tdel]'), un = e.target.closest('[data-unseat]');
+      if (del) { const tid = del.dataset.tdel; seat.tables = tables.filter((x) => x.id !== tid); Object.keys(assign).forEach((k) => { if (assign[k] === tid) delete assign[k]; }); save(); renderSeating(); }
+      else if (un) { delete assign[un.dataset.unseat]; save(); renderSeating(); }
+    };
+    $('#seatPool').onchange = (e) => { const s = e.target.closest('[data-seat]'); if (!s || !s.value) return; assign[s.dataset.seat] = s.value; save(); renderSeating(); };
+  }
+  function autoSeat() {
+    const seat = seatData(), attending = allGuests().filter((x) => x.status === 'yes');
+    if (!attending.length) { toast('No “yes” guests yet'); return; }
+    const byGroup = {};
+    attending.forEach((gu) => { const k = gu.group || 'Guests'; (byGroup[k] = byGroup[k] || []).push(gu); });
+    seat.assign = {};
+    Object.keys(byGroup).forEach((grp) => {
+      let t = seat.tables.find((x) => (x.name || '').toLowerCase() === grp.toLowerCase());
+      if (!t) { t = { id: g(), name: grp, capacity: Math.max(8, byGroup[grp].length) }; seat.tables.push(t); }
+      byGroup[grp].forEach((gu) => { seat.assign[gu.id] = t.id; });
+    });
+    save(); renderSeating(); toast('Seated everyone by group');
+  }
+
+  /* ============================================================
      WIRING
      ============================================================ */
   function switchTab(name) {
@@ -663,6 +722,7 @@
     $$('.tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === name));
     if (name === 'guests') renderGuests();
     if (name === 'invite') renderInvite();
+    if (name === 'seating') renderSeating();
     if (name === 'money') renderMoney();
     if (name === 'dashboard') renderDash();
     if (name === 'design') renderPreview();
