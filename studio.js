@@ -9,7 +9,7 @@
   const $$ = (s, c) => Array.from((c || document).querySelectorAll(s));
   const ce = (t, cls) => { const e = document.createElement(t); if (cls) e.className = cls; return e; };
   const D = window.DURBAR;
-  const THEMES = D.THEMES, TEMPLATES = D.TEMPLATES, TPL_LABEL = D.TPL_LABEL;
+  const THEMES = D.THEMES, TEMPLATES = D.TEMPLATES, TPL_LABEL = D.TPL_LABEL, FONTS = D.FONTS;
   const ghs = D.ghs, esc = D.esc, niceDate = D.niceDate, countdown = D.countdown;
 
   const CITIES = ['Accra', 'Kumasi', 'Takoradi', 'Cape Coast', 'Tamale', 'Tema', 'Koforidua', 'Sunyani', 'Ho', 'Wa', 'Bolgatanga', 'Sekondi', 'Techiman', 'Obuasi'];
@@ -27,12 +27,21 @@
         date: '2026-12-14T15:00', venue: 'Golden Tulip', city: 'Kumasi',
         address: 'Rama Road, Adum, Kumasi', mapUrl: '', mapNote: 'Parking available at the rear gate.',
         story: 'Two families, one celebration. Join us as we say "I do" — surrounded by love, kente and joy. Your presence is the greatest gift.',
-        dressCode: 'Royal green & gold', displayFont: 'serif',
+        dressCode: 'Royal green & gold', displayFont: 'serif', fontPair: 'classic',
         cover: '', gallery: [],
         schedule: [
           { time: '09:00', label: 'Traditional rites — Manhyia' },
           { time: '12:30', label: 'Church blessing — Cathedral' },
           { time: '15:00', label: 'Reception — Golden Tulip' },
+        ],
+        travel: [
+          { title: 'Golden Tulip Kumasi', detail: 'Our recommended hotel — mention “Ama & Kwame” for the group rate.', url: '' },
+          { title: 'Parking & getting there', detail: 'Free parking at the rear gate; overflow along Rama Road.', url: '' },
+        ],
+        faq: [
+          { q: 'Can I bring the children?', a: 'We adore them! Little ones are welcome at the daytime events; the evening reception is adults-only.' },
+          { q: 'What should I wear?', a: 'Royal green & gold — kente accents are warmly welcome.' },
+          { q: 'How do I send a gift?', a: 'Tap “Send a gift via MoMo” on this page; it is recorded for the couple instantly.' },
         ],
         rsvpDeadline: '2026-12-01', allowPlusOnes: true,
         contribution: { enabled: true, label: 'Send a gift via MoMo', momo: '024 000 0000', goal: 20000 },
@@ -61,7 +70,7 @@
   }
   function blankState() {
     const s = seed();
-    Object.assign(s.event, { title: 'New event', subtitle: '', hosts: '', hashtag: '', story: '', cover: '', gallery: [], dressCode: '', mapNote: '', mapUrl: '', schedule: [{ time: '', label: '' }] });
+    Object.assign(s.event, { title: 'New event', subtitle: '', hosts: '', hashtag: '', story: '', cover: '', gallery: [], travel: [], faq: [], dressCode: '', mapNote: '', mapUrl: '', schedule: [{ time: '', label: '' }] });
     s.event.date = new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 16);
     s.guests = []; s.contributors = []; s.vendors = [];
     return s;
@@ -71,10 +80,14 @@
   const KEY = 'durbar.studio.v2';
   let state;
   function load() { try { const r = localStorage.getItem(KEY); if (r) return migrate(JSON.parse(r)); } catch (e) {} return seed(); }
-  function migrate(s) { // ensure new fields exist on older saves
-    const d = seed().event;
-    s.event = Object.assign({}, d, s.event);
-    if (!Array.isArray(s.event.gallery)) s.event.gallery = [];
+  function migrate(s) { // ensure new fields exist on older saves — never inject demo content
+    const base = seed().event;
+    base.travel = []; base.faq = []; base.fontPair = '';
+    s.event = Object.assign({}, base, s.event);
+    s.event.gallery = Array.isArray(s.event.gallery) ? s.event.gallery : [];
+    s.event.travel = Array.isArray(s.event.travel) ? s.event.travel : [];
+    s.event.faq = Array.isArray(s.event.faq) ? s.event.faq : [];
+    if (!s.event.fontPair) s.event.fontPair = (THEMES[s.event.theme] || {}).font || 'classic';
     return s;
   }
   let saveT;
@@ -114,7 +127,7 @@
      ============================================================ */
   function renderPreview() {
     const wrap = $('#pvWrap');
-    D.applyTheme(wrap, state.event.theme);
+    D.applyTheme(wrap, state.event.theme, state.event.fontPair);
     const collected = state.contributors.reduce((a, c) => a + (+c.paid || 0), 0);
     wrap.innerHTML = D.renderEventPage(state.event, { collected: collected, mode: 'preview' });
   }
@@ -136,6 +149,7 @@
       const b = ev.target.closest('[data-tpl]'); if (!b) return;
       const k = b.dataset.tpl, t = TEMPLATES[k];
       e.template = k; e.theme = t.theme; e.subtitle = t.sub; e.dressCode = t.dress; e.contribution.label = t.gift;
+      e.fontPair = (THEMES[t.theme] || {}).font || 'classic';
       $$('.tpl', tg).forEach((x) => x.classList.toggle('sel', x.dataset.tpl === k));
       syncFields(); renderSwatches(); renderPreview(); touched(); toast(TPL_LABEL[k] + ' template applied');
     };
@@ -144,6 +158,7 @@
     $('#swGrid').onclick = (ev) => { const b = ev.target.closest('[data-th]'); if (!b) return; e.theme = b.dataset.th; renderSwatches(); renderPreview(); touched(); };
 
     $('#fCity').innerHTML = CITIES.map((c) => `<option ${c === e.city ? 'selected' : ''}>${c}</option>`).join('');
+    $('#fFont').innerHTML = Object.keys(FONTS).map((k) => `<option value="${k}">${FONTS[k].label}</option>`).join('');
 
     // generic binds
     $$('[data-bind]').forEach((el) => {
@@ -178,13 +193,19 @@
     });
 
     buildSchedule();
+    buildTravel();
+    buildFaq();
     renderCover();
     renderGallery();
     syncFields();
   }
   function renderSwatches() {
-    $('#swGrid').innerHTML = Object.keys(THEMES).map((k) =>
-      `<div class="sw ${k === state.event.theme ? 'sel' : ''}" data-th="${k}" title="${k}" style="background:linear-gradient(135deg,${THEMES[k].primary},${THEMES[k].accent})"></div>`).join('');
+    $('#swGrid').innerHTML = Object.keys(THEMES).map((k) => {
+      const th = THEMES[k], fp = FONTS[th.font] || FONTS.classic;
+      return `<button type="button" class="thm ${k === state.event.theme ? 'sel' : ''}" data-th="${k}" title="${themeLabel(k)}">
+        <span class="thm-pv" style="background:linear-gradient(135deg,${th.primary},${th.accent})"><span class="thm-aa" style="font-family:${fp.display.replace(/"/g, "'")}">Aa</span></span>
+        <span class="thm-nm">${themeLabel(k)}</span></button>`;
+    }).join('');
   }
   function renderCover() {
     const e = state.event;
@@ -205,7 +226,7 @@
     set('#fTitle', e.title); set('#fSub', e.subtitle); set('#fHosts', e.hosts); set('#fHashtag', e.hashtag);
     set('#fDate', e.date); set('#fVenue', e.venue); set('#fCity', e.city); set('#fAddress', e.address);
     set('#fStory', e.story); set('#fDress', e.dressCode); set('#fMapNote', e.mapNote); set('#fMapUrl', e.mapUrl);
-    set('#fFont', e.displayFont); set('#fRsvp', e.rsvpDeadline); set('#fPlus', e.allowPlusOnes);
+    set('#fFont', e.fontPair); set('#fRsvp', e.rsvpDeadline); set('#fPlus', e.allowPlusOnes);
     set('#fContribOn', e.contribution.enabled); set('#fContribLabel', e.contribution.label);
     set('#fMomo', e.contribution.momo); set('#fGoal', e.contribution.goal);
   }
@@ -222,6 +243,37 @@
     box.onclick = (ev) => { const d = ev.target.closest('[data-del]'); if (d) { e.schedule.splice(+d.dataset.del, 1); buildSchedule(); renderPreview(); touched(); } };
   }
   function addSchedule() { state.event.schedule.push({ time: '', label: '' }); buildSchedule(); touched(); }
+  function buildTravel() {
+    const box = $('#travList'), e = state.event; box.innerHTML = '';
+    (e.travel || []).forEach((it, i) => {
+      const row = ce('div', 'stack-row');
+      row.innerHTML = `<div class="sr-main">
+        <input type="text" value="${esc(it.title)}" placeholder="Place / topic (e.g. Golden Tulip Hotel)" data-ti="${i}" data-tk="title">
+        <input type="text" value="${esc(it.detail)}" placeholder="Detail — rate, distance, note" data-ti="${i}" data-tk="detail">
+        <input type="text" value="${esc(it.url || '')}" placeholder="Link (optional) — maps, booking…" data-ti="${i}" data-tk="url"></div>
+        <button class="mini-x" data-travdel="${i}" title="Remove">✕</button>`;
+      box.appendChild(row);
+    });
+    const c = $('#travCount'); if (c) c.textContent = (e.travel || []).length ? e.travel.length + ' added' : '';
+    box.oninput = (ev) => { const t = ev.target; if (t.dataset.ti != null) { e.travel[+t.dataset.ti][t.dataset.tk] = t.value; renderPreview(); touched(); } };
+    box.onclick = (ev) => { const d = ev.target.closest('[data-travdel]'); if (d) { e.travel.splice(+d.dataset.travdel, 1); buildTravel(); renderPreview(); touched(); } };
+  }
+  function addTravel() { const e = state.event; e.travel = e.travel || []; e.travel.push({ title: '', detail: '', url: '' }); buildTravel(); touched(); }
+  function buildFaq() {
+    const box = $('#faqList'), e = state.event; box.innerHTML = '';
+    (e.faq || []).forEach((it, i) => {
+      const row = ce('div', 'stack-row');
+      row.innerHTML = `<div class="sr-main">
+        <input type="text" value="${esc(it.q)}" placeholder="Question (e.g. Can I bring my kids?)" data-fi="${i}" data-fk="q">
+        <textarea placeholder="Answer" data-fi="${i}" data-fk="a">${esc(it.a)}</textarea></div>
+        <button class="mini-x" data-faqdel="${i}" title="Remove">✕</button>`;
+      box.appendChild(row);
+    });
+    const c = $('#faqCount'); if (c) c.textContent = (e.faq || []).length ? e.faq.length + ' added' : '';
+    box.oninput = (ev) => { const t = ev.target; if (t.dataset.fi != null) { e.faq[+t.dataset.fi][t.dataset.fk] = t.value; renderPreview(); touched(); } };
+    box.onclick = (ev) => { const d = ev.target.closest('[data-faqdel]'); if (d) { e.faq.splice(+d.dataset.faqdel, 1); buildFaq(); renderPreview(); touched(); } };
+  }
+  function addFaq() { const e = state.event; e.faq = e.faq || []; e.faq.push({ q: '', a: '' }); buildFaq(); touched(); }
 
   /* ============================================================
      GUESTS
@@ -425,6 +477,13 @@
     }));
     buildEditor();
     $('#schAdd').addEventListener('click', addSchedule);
+    $('#travAdd').addEventListener('click', addTravel);
+    $('#faqAdd').addEventListener('click', addFaq);
+    // section-nav anchors inside the live preview scroll within the frame
+    $('#pvWrap').addEventListener('click', (e) => {
+      const a = e.target.closest('.ev-nav a[href^="#ev-"]'); if (!a) return;
+      e.preventDefault(); const t = $('#pvWrap').querySelector(a.getAttribute('href')); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
     $('#btnGuest').addEventListener('click', () => { save(); window.open('event.html', '_blank'); });
     const ge = $('#gExport'); if (ge) ge.addEventListener('click', exportGuests);
     const me2 = $('#mExport'); if (me2) me2.addEventListener('click', exportMoney);

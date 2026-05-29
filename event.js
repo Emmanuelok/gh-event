@@ -25,7 +25,7 @@
 
   const getCollected = () => mode === 'server' ? collected : (state.contributors || []).reduce((a, c) => a + (+c.paid || 0), 0);
   function render() {
-    D.applyTheme(page, ev.theme);
+    D.applyTheme(page, ev.theme, ev.fontPair);
     page.innerHTML = D.renderEventPage(ev, { collected: getCollected(), mode: 'guest' });
   }
   const saveLocal = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
@@ -66,6 +66,8 @@
   }
 
   page.addEventListener('click', (e) => {
+    const nav = e.target.closest('.ev-nav a[href^="#ev-"]');
+    if (nav) { e.preventDefault(); const t = page.querySelector(nav.getAttribute('href')); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
     const a = e.target.closest('[data-action]'); if (!a) return;
     if (a.dataset.action === 'rsvp') openRsvp();
     else if (a.dataset.action === 'contribute') openContribute();

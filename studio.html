@@ -112,12 +112,30 @@
           </div>
 
           <div class="ed-sec">
+            <div class="ed-head"><span class="ic">✈️</span> Travel &amp; stay <span class="dim small" id="travCount"></span><span class="chev">▾</span></div>
+            <div class="ed-body">
+              <p class="dim small" style="margin:0 0 9px">Hotels, parking, getting there — anything out-of-town guests need.</p>
+              <div id="travList"></div>
+              <button class="add-row" id="travAdd">+ Add travel info</button>
+            </div>
+          </div>
+
+          <div class="ed-sec">
+            <div class="ed-head"><span class="ic">❓</span> FAQ <span class="dim small" id="faqCount"></span><span class="chev">▾</span></div>
+            <div class="ed-body">
+              <p class="dim small" style="margin:0 0 9px">Answer the questions guests always ask — kids, dress code, gifts, timing.</p>
+              <div id="faqList"></div>
+              <button class="add-row" id="faqAdd">+ Add question</button>
+            </div>
+          </div>
+
+          <div class="ed-sec">
             <div class="ed-head"><span class="ic">👗</span> Details <span class="chev">▾</span></div>
             <div class="ed-body">
               <div class="fld"><label>Dress code</label><input type="text" id="fDress" data-bind="dressCode" placeholder="e.g. Royal green &amp; gold" /></div>
               <div class="fld"><label>Map / parking note <span class="opt">(optional)</span></label><input type="text" id="fMapNote" data-bind="mapNote" /></div>
               <div class="fld"><label>Google Maps link <span class="opt">(optional — overrides auto)</span></label><input type="text" id="fMapUrl" data-bind="mapUrl" placeholder="https://maps.app.goo.gl/…" /></div>
-              <div class="fld"><label>Title font</label><select id="fFont" data-bind="displayFont"><option value="serif">Elegant serif</option><option value="sans">Modern sans</option></select></div>
+              <div class="fld"><label>Font pairing</label><select id="fFont" data-bind="fontPair"></select></div>
             </div>
           </div>
 
